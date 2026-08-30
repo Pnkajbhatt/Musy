@@ -13,6 +13,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import com.pnkj.Musy.user.entity.User;
 import lombok.Getter;
 
@@ -32,7 +34,7 @@ public class Song {
     private String title;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @NotBlank
@@ -43,7 +45,9 @@ public class Song {
 
     private String description;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Genre genre;
 
     @Column(name = "stream_count")
