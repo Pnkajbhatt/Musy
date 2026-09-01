@@ -43,22 +43,20 @@ public class UserService {
     private User dtoToUser(UserRequest userRequest) {
         User user = new User();
 
-        user.setUsername(userRequest.getUsername());
-        user.setEmail(userRequest.getEmail());
-        user.setPassword(userRequest.getPassword());
+        user.setUsername(userRequest.username());
+        user.setEmail(userRequest.email());
+        user.setPassword(userRequest.password());
         user.setRole(Role.USER);
-
         return user;
 
     }
 
     private UserResponse userToDto(User user) {
-        UserResponse userResponse = new UserResponse();
-
-        userResponse.setId(user.getUser_id());
-        userResponse.setEmail(user.getEmail());
-        userResponse.setUsername(user.getUsername());
-        userResponse.setRole(user.getRole());
+        UserResponse userResponse = new UserResponse(
+                user.getUser_id(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole());
 
         return userResponse;
 

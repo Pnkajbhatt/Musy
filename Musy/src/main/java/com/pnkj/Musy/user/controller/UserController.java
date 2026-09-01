@@ -4,10 +4,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pnkj.Musy.user.dto.ApiResponse;
 import com.pnkj.Musy.user.dto.UserRequest;
 import com.pnkj.Musy.user.dto.UserResponse;
 
 import com.pnkj.Musy.user.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.validation.Valid;
 
@@ -30,42 +33,46 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
+
     private final UserService userService;
 
-    // @PostMapping("/post")
-    // public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-    // try {
-    // User createdUser = userService.saveUser(user);
-    // return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-    // } catch (IllegalArgumentException e) {
-    // log.error("Validation error: {}", e.getMessage());
-    // return ResponseEntity.badRequest().body(null); // Or return a custom error
-    // DTO
-    // } catch (Exception e) {
-    // log.error("Unexpected error while creating user: {}", e.getMessage());
-    // return ResponseEntity.internalServerError().build();
-    // }
-    // }
-
     @PostMapping("user")
-    public ResponseEntity<UserResponse> CreateUser(@Valid @RequestBody UserRequest user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(user));
+    public ResponseEntity<ApiResponse<UserResponse>> CreateUser(@Valid @RequestBody UserRequest user,
+            HttpServletRequest httpRequest) {
+
+        UserResponse userResponse = userService.saveUser(user);
+
+        ApiResponse<UserResponse> response = ApiResponse.success(userResponse,
+                "user has been created ", httpRequest.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("delete/user/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        String response = userService.deleteUser(id);
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long id, HttpServletRequest httpRequest) {
+
+        String deleteUser = userService.deleteUser(id);
+
+        ApiResponse<String> reponse = ApiResponse.success(deleteUser, "User has been deleted",
+                httpRequest.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(reponse);
+
     }
 
     @GetMapping("/users")
-    public List<UserResponse> getAll() {
-        return userService.getUsers();
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUser(HttpServletRequest httpRequest) {
+        ApiResponse<List<UserResponse>> response = ApiResponse.success(userService.getUsers(), "All the Users are ",
+                httpRequest.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.FOUND).body(response);
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<?> getUser(@PathVariable Long id) {
-        return ResponseEntity.ok().body(userService.getUsers(id));
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable Long id, HttpServletRequest httpRequest) {
+        ApiResponse<UserResponse> response = ApiResponse.success(userService.getUsers(id), "User Found",
+                httpRequest.getRequestURI());
+        return ResponseEntity.status(HttpStatus.FOUND).body(response);
     }
 
 }

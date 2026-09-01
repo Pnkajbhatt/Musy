@@ -13,7 +13,7 @@ public record ApiResponse<T>(
         return new ApiResponse<T>(true, message, data, null, Instant.now(), path);
     }
 
-    public static ApiResponse<Void> error(ApiError error, String path) {
-        return new ApiResponse<Void>(false, error.message(), null, error, null, path);
+    public static <T> ApiResponse<T> error(ApiError error, String path) {
+        return new ApiResponse<T>(false, error.message(), null, error, Instant.now(), path);
     }
 }
