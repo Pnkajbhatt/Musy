@@ -1,6 +1,7 @@
 package com.pnkj.Musy.user.dto;
 
 import com.pnkj.Musy.user.entity.Role;
+import com.pnkj.Musy.user.entity.RoleType;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -23,9 +24,9 @@ import jakarta.validation.constraints.NotNull;
 // }
 
 public record UserResponse(
-        @NotNull Long id,
-        @NotBlank String username,
-        @Email String email,
-        @NotBlank Role role) {
+                @NotNull Long id,
+                @NotBlank String username,
+                @Email String email,
+                @NotBlank Role role) {
 
 }

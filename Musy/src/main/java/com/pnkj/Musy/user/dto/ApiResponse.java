@@ -2,8 +2,6 @@ package com.pnkj.Musy.user.dto;
 
 import java.time.Instant;
 
-import com.pnkj.Musy.song.dto.ApiError;
-
 public record ApiResponse<T>(
         boolean success,
         String message,
@@ -11,7 +9,8 @@ public record ApiResponse<T>(
         ApiError error,
         Instant timestamp,
         String path) {
-    public static <T> ApiResponse<T> Success(String path, String message, T data) {
+
+    public static <T> ApiResponse<T> Success(T data, String message, String path) {
         return new ApiResponse<T>(true, message, data, null, Instant.now(), path);
     }
 

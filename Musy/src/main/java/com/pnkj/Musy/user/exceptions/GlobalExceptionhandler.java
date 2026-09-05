@@ -16,8 +16,10 @@ public class GlobalExceptionhandler {
 
         ApiError error = new ApiError(ex.getCode(), ex.getMessage(), null);
 
-        ApiResponse<ApiError> response = ApiResponse.error(error, request.getRequestURI());
+        // ApiResponse<ApiError> response = ApiResponse.error("", error,
+        // request.getRequestURI());
 
+        ApiResponse<ApiError> response = ApiResponse.error(error.message(), error, null);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
     }

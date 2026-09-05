@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.pnkj.Musy.user.dto.UserRequest;
 import com.pnkj.Musy.user.dto.UserResponse;
 import com.pnkj.Musy.user.entity.Role;
+import com.pnkj.Musy.user.entity.RoleType;
 import com.pnkj.Musy.user.entity.User;
 import com.pnkj.Musy.user.repository.UserRepository;
 
@@ -46,7 +47,6 @@ public class UserService {
         user.setUsername(userRequest.username());
         user.setEmail(userRequest.email());
         user.setPassword(userRequest.password());
-        user.setRole(Role.USER);
         return user;
 
     }
