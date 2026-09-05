@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pnkj.Musy.song.dto.ApiResponse;
+import com.pnkj.Musy.song.dto.ApiResponseSONG;
 import com.pnkj.Musy.song.dto.SongRequest;
 import com.pnkj.Musy.song.dto.SongResponse;
 
@@ -32,9 +32,9 @@ public class SongController {
     private final SongService service;
 
     @PostMapping("/song")
-    public ResponseEntity<ApiResponse<SongResponse>> createSong(@Valid @RequestBody SongRequest songRequest,
+    public ResponseEntity<ApiResponseSONG<SongResponse>> createSong(@Valid @RequestBody SongRequest songRequest,
             HttpServletRequest httpServletRequest) {
-        ApiResponse<SongResponse> response = ApiResponse.success(service.createSong(songRequest), "Song has been Saved",
+        ApiResponseSONG<SongResponse> response = ApiResponseSONG.success(service.createSong(songRequest), "Song has been Saved",
                 httpServletRequest.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -42,17 +42,17 @@ public class SongController {
     }
 
     @DeleteMapping("/song/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteSong(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponseSONG<Void>> deleteSong(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         service.deleteSong(id);
-        ApiResponse<Void> response = ApiResponse.success(null, "Song has been deleted",
+        ApiResponseSONG<Void> response = ApiResponseSONG.success(null, "Song has been deleted",
                 httpServletRequest.getRequestURI());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/song/{id}")
-    public ResponseEntity<ApiResponse<SongResponse>> findsong(@PathVariable Long id,
+    public ResponseEntity<ApiResponseSONG<SongResponse>> findsong(@PathVariable Long id,
             HttpServletRequest httpServletRequest) {
-        ApiResponse<SongResponse> response = ApiResponse.success(service.findSong(id), "User",
+        ApiResponseSONG<SongResponse> response = ApiResponseSONG.success(service.findSong(id), "User",
                 httpServletRequest.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.FOUND)
@@ -60,8 +60,8 @@ public class SongController {
     }
 
     @GetMapping("/songs")
-    public ResponseEntity<ApiResponse<List<SongResponse>>> getAllSong(HttpServletRequest httpServletRequest) {
-        ApiResponse<List<SongResponse>> response = ApiResponse.success(service.allSongs(), "User",
+    public ResponseEntity<ApiResponseSONG<List<SongResponse>>> getAllSong(HttpServletRequest httpServletRequest) {
+        ApiResponseSONG<List<SongResponse>> response = ApiResponseSONG.success(service.allSongs(), "User",
                 httpServletRequest.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
