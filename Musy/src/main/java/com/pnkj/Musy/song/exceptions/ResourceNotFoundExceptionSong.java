@@ -3,10 +3,10 @@ package com.pnkj.Musy.song.exceptions;
 import lombok.Getter;
 
 @Getter
-public class ResourceNotFoundException extends RuntimeException {
+public class ResourceNotFoundExceptionSong extends RuntimeException {
     private final String code = "Resource_notFound";
 
-    public ResourceNotFoundException(String message) {
+    public ResourceNotFoundExceptionSong(String message) {
         super(message);
     }
 }

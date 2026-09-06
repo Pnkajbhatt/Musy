@@ -9,19 +9,24 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+@Service
 public class JwtService {
-    @Value("${jwt.secret}")
-    String secrete;
-    @Value("${jwt.expiration-ms}")
-    long expirationMs;
+    private final SecretKey signedKey;
+    private final long expirationMs;
 
-    SecretKey signedKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secrete));
+    public JwtService(
+            @Value("${spring.jwt.secret}") String secret,
+            @Value("${spring.jwt.expiration-ms}") long expirationMs) {
+        this.signedKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        this.expirationMs = expirationMs;
+    }
 
     public String GenerateJwtToken(Authentication authentication) {
         List<String> authorities = authentication.getAuthorities().stream()
