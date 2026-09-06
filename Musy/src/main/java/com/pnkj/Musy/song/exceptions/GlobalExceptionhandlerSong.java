@@ -10,9 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class GlobalExceptionhandler {
+public class GlobalExceptionhandlerSong {
 
-    public ResponseEntity<ApiResponseSONG<ApiErrorSONG>> handleNotFound(ResourceNotFoundException ex,
+    public ResponseEntity<ApiResponseSONG<ApiErrorSONG>> handleNotFound(ResourceNotFoundExceptionSong ex,
             HttpServletRequest httpServletRequest) {
         ApiErrorSONG error = new ApiErrorSONG(ex.getCode(), ex.getMessage(), null);
         ApiResponseSONG<ApiErrorSONG> response = ApiResponseSONG.error(error, null);

@@ -3,6 +3,7 @@ package com.pnkj.Musy.auth.service;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import com.pnkj.Musy.auth.config.CustomUserDetails;
 import com.pnkj.Musy.user.entity.User;
@@ -11,6 +12,7 @@ import com.pnkj.Musy.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 

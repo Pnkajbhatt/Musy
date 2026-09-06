@@ -25,14 +25,15 @@ public class SecurityCofig {
 
     private final CustomUserDetailsService customUserDetails;
     private final JwtAuthFilter jwtAuthFilter;
-
+    
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/song/**").hasRole("USER")
-                        .requestMatchers("api/user/**").hasAnyRole("USER", "ARTIST")
+                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ARTIST")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
