@@ -16,3 +16,9 @@ spring:
   jwt:
     secret: ${JWT_SECRETE_KEY}
     expiration-ms: ${JWT_EXPIRE}
+aws:
+  s3:
+    bucket: musys3-151963020801-ap-south-1-an
+    region: ap-south-1
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
