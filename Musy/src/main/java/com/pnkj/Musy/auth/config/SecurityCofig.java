@@ -25,7 +25,7 @@ public class SecurityCofig {
 
     private final CustomUserDetailsService customUserDetails;
     private final JwtAuthFilter jwtAuthFilter;
-    
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http
@@ -34,6 +34,7 @@ public class SecurityCofig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/song/**").hasRole("USER")
                         .requestMatchers("/api/user/**").hasAnyRole("USER", "ARTIST")
+                        .requestMatchers("/api/files/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
