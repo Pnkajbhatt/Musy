@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 
 import com.pnkj.Musy.user.dto.UserRequest;
 import com.pnkj.Musy.user.dto.UserResponse;
-import com.pnkj.Musy.user.entity.Role;
-import com.pnkj.Musy.user.entity.RoleType;
 import com.pnkj.Musy.user.entity.User;
 import com.pnkj.Musy.user.repository.UserRepository;
 
