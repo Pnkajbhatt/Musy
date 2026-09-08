@@ -20,10 +20,10 @@ public class SongService {
     private final SongRepository repository;
     private final UserRepository userRepository;
 
-    public SongResponse createSong(SongRequest songRequest) {
+    public SongResponse createSong(SongRequest songRequest, String musicURL) {
         User user = userRepository.findById(songRequest.userId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Song song = dtoTSong(songRequest, user);
+        Song song = dtoTSong(songRequest, user, musicURL);
         song = repository.save(song);
 
         return SongResponse.from(song);
@@ -46,15 +46,15 @@ public class SongService {
         return repository.findAll().stream().map(song -> SongResponse.from(song)).toList();
     }
 
-    public Song dtoTSong(SongRequest songRequest, User user) {
+    public Song dtoTSong(SongRequest songRequest, User user, String URL) {
 
         Song song = new Song();
         song.setTitle(songRequest.title());
         song.setDescription(songRequest.description());
         song.setUser(user);
-        song.setSong_url(songRequest.song_url());
         song.setCover_url(songRequest.cover_url());
         song.setGenre(songRequest.genre());
+        song.setSong_url(URL);
         return song;
 
     }

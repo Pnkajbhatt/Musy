@@ -32,9 +32,9 @@ public class SecurityCofig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/song/**").hasRole("USER")
+                        .requestMatchers("/api/song/**").permitAll()
                         .requestMatchers("/api/user/**").hasAnyRole("USER", "ARTIST")
-                        .requestMatchers("/api/files/**").permitAll()
+                        .requestMatchers("/api/files/play").hasAnyRole("USER", "ADMIN", "ARTIST")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

@@ -33,7 +33,7 @@ public class S3Service {
             throw new IllegalArgumentException(
                     "Only MP3, WAV, FLAC and AAC files are allowed");
         }
-        
+
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
         PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(fileName)
@@ -41,7 +41,7 @@ public class S3Service {
 
         s3Config.s3Client().putObject(request, RequestBody.fromBytes(file.getBytes()));
 
-        return "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
+        return fileName;
     }
 
     public InputStream Download(String fileName) throws IOException {
