@@ -3,7 +3,6 @@ package com.pnkj.Musy.song.controller;
 import java.io.IOException;
 import java.util.List;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,18 +39,14 @@ public class SongController {
         @PostMapping(value = "/song", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public ResponseEntity<ApiResponseSONG<SongResponse>> createSong(
                         @Valid @RequestPart("songRequest") SongRequest songRequest,
-                        @RequestPart("file") MultipartFile file,
+                        @RequestPart("file") MultipartFile file, @RequestPart("cover") MultipartFile cover,
                         HttpServletRequest httpServletRequest) throws IOException {
-
-                String MusicURL = s3Service.uploadMusic(file);
-
+                String musicURL = s3Service.uploadMusic(file);
+                String coverURL = s3Service.uploadCover(cover);
                 ApiResponseSONG<SongResponse> response = ApiResponseSONG.success(
-                                service.createSong(songRequest, MusicURL),
-                                "Song has been Saved",
+                                service.createSong(songRequest, musicURL, coverURL), "Song has been Saved",
                                 httpServletRequest.getRequestURI());
-
-                return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(response);
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
 
         @DeleteMapping("/song/{id}")

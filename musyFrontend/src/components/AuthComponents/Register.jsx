@@ -1,3 +1,4 @@
+import apiFetch from "../../apiFetch";
 import { useState } from "react";
 
 function Register() {
@@ -7,6 +8,7 @@ function Register() {
     password: "",
     conformPassword: "",
   });
+  const [visible, setVisible] = useState("false");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -17,6 +19,9 @@ function Register() {
       ...prev,
       [name]: value,
     }));
+  };
+  const handlePasswordVisibility = () => {
+    setVisible((prev) => !prev);
   };
 
   const handleSubmit = async (e) => {
@@ -31,7 +36,7 @@ function Register() {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:8080/api/auth/register", {
+      const response = await apiFetch("auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,14 +95,24 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <input
-            type="password"
-            placeholder="text"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <div className="vis">
+            <input
+              type={visible ? "text" : "password"}
+              placeholder="Passwords"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button" // important: type="button" else it will submit form
+              onClick={handlePasswordVisibility}
+              className="p-2"
+            >
+              {visible ? "Hide" : "Show"}
+            </button>
+          </div>
+
           <input
             type="password"
             placeholder="ConformPassword"

@@ -13,9 +13,7 @@ public record SongRequest(
 
         @NotNull(message = "userId is required") Long userId,
 
-        @NotBlank String song_url,
 
-        @NotBlank String cover_url,
 
         String description,
 

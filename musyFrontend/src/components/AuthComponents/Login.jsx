@@ -3,10 +3,10 @@ import { useState } from "react";
 function Login() {
   const [formData, setFormdata] = useState({
     username: "",
-
     password: "",
     conformPassword: "",
   });
+  const [visible, setVisible] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -18,12 +18,17 @@ function Login() {
       [name]: value,
     }));
   };
+  const handlePasswordVisibility = () => {
+    setVisible((prev) => !prev);
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefaut();
+    e.preventDefault();
+
     setError("");
     if (formData.password != formData.conformPassword) {
       setError("password do not matched");
+      return;
     }
 
     try {
@@ -42,13 +47,24 @@ function Login() {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
+        throw new Error(data.message || "Login failed");
+      }
+
+      const token =
+        data.token ?? data.Token ?? data.data?.token ?? data.data?.Token;
+      if (token) {
+        localStorage.setItem("token", token);
       }
 
       console.log("Success:", data);
-      alert("Registration Successful!");
+      alert("login Successful!");
 
-      setFormdata({ name: "", email: "", password: "", confirmPassword: "" });
+      setFormdata({
+        username: "",
+
+        password: "",
+        conformPassword: "",
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -63,26 +79,38 @@ function Login() {
           action=""
           method="post"
           className="flex flex-col gap-6 justify-center "
+          onSubmit={handleSubmit}
         >
           <h1 className="text-3xl font-bold">Login Your Account</h1>
           <input
             type="text"
             placeholder="username"
             name="username"
-            value={formData.name}
+            value={formData.username}
             onChange={handleChange}
             required
           />
+
+          <div className="vis">
+            <input
+              type={visible ? "text" : "password"}
+              placeholder="Passwords"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button" // important: type="button" else it will submit form
+              onClick={handlePasswordVisibility}
+              className="p-2"
+            >
+              {visible ? "Hide" : "Show"}
+            </button>
+          </div>
+
           <input
-            type="text"
-            placeholder="password"
-            name="passsword"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
+            type="password"
             placeholder="ConformPassword"
             name="conformPassword"
             value={formData.conformPassword}
@@ -94,9 +122,8 @@ function Login() {
           <button
             type="submit"
             className=" rounded-sm bg-green-500 h-9 font-bold text-xl"
-            onSubmit={handleSubmit}
           >
-            {loading ? "Loging in..." : "login"}
+            {loading ? "Login...." : "Login"}
           </button>
         </form>
       </div>
