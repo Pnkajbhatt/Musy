@@ -35,7 +35,7 @@ public class SecurityCofig {
                         .requestMatchers("/api/songs").permitAll()
                         .requestMatchers("/api/song/**").permitAll()
                         .requestMatchers("/api/user/**").hasAnyRole("USER", "ARTIST")
-                        .requestMatchers("/api/files/play").hasAnyRole("USER", "ADMIN", "ARTIST")
+                        .requestMatchers("/api/files/play").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import org.springframework.http.MediaType;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaTypeFactory;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,7 +41,8 @@ public class S3Controller {
         InputStream inputStream = s3Services.Download(fileName);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaTypeFactory.getMediaType(fileName)
+                        .orElse(MediaType.APPLICATION_OCTET_STREAM))
                 .body(new InputStreamResource(inputStream));
     }
 

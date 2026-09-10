@@ -19,6 +19,7 @@ public class SongService {
 
     private final SongRepository repository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     public SongResponse createSong(SongRequest songRequest, String musicURL, String coverURL) {
         User user = userRepository.findById(songRequest.userId())
@@ -26,7 +27,7 @@ public class SongService {
         Song song = dtoTSong(songRequest, user, musicURL, coverURL);
         song = repository.save(song);
 
-        return SongResponse.from(song);
+        return toResponse(song);
     }
 
     public void deleteSong(Long songId) {
@@ -37,13 +38,19 @@ public class SongService {
     }
 
     public SongResponse findSong(Long songId) {
-        return SongResponse.from(
+        return toResponse(
                 repository.findById(songId)
                         .orElseThrow(() -> new IllegalArgumentException("Song not found")));
     }
 
     public List<SongResponse> allSongs() {
-        return repository.findAll().stream().map(song -> SongResponse.from(song)).toList();
+        return repository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    private SongResponse toResponse(Song song) {
+        return SongResponse.from(song,
+                s3Service.getFileUrl(song.getSong_url()),
+                s3Service.getFileUrl(song.getCover_url()));
     }
 
     public Song dtoTSong(SongRequest songRequest, User user, String SongURL, String CoverURL) {

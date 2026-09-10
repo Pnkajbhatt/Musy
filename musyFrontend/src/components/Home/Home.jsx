@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import SongCard from "../Songs/SongCard";
 
-function Home() {
+function Home({ onPlay }) {
   const [songs, setSongs] = useState([]);
 
   useEffect(() => {
@@ -18,9 +18,12 @@ function Home() {
 
   return (
     <div>
-      <h1>this is home</h1>
       {songs.map((song) => (
-        <SongCard key={song.song_id} song={song} />
+        <SongCard
+          key={song.songId ?? song.song_id}
+          song={song}
+          onPlay={onPlay}
+        />
       ))}
     </div>
   );

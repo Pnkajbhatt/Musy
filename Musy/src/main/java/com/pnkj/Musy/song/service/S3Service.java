@@ -2,6 +2,8 @@ package com.pnkj.Musy.song.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +25,18 @@ public class S3Service {
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
+
+    @Value("${app.api.base-url:http://localhost:8080}")
+    private String apiBaseUrl;
+
+    public String getFileUrl(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return null;
+        }
+
+        return apiBaseUrl + "/api/files/play?fileName="
+                + URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+    }
 
     public String uploadMusic(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
@@ -48,6 +62,23 @@ public class S3Service {
         String fileName = "Cover/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
         PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(fileName)
                 .contentType(file.getContentType()).build();
+        s3Config.s3Client().putObject(request, RequestBody.fromBytes(file.getBytes()));
+        return fileName;
+    }
+
+    public String uploadProfileImage(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Cover image cannot be empty");
+        }
+        if (!isSupportedImage(file.getOriginalFilename())) {
+            throw new IllegalArgumentException("Only JPG, JPEG and PNG files are allowed");
+        }
+
+        String fileName = "profile/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(fileName)
+                .contentType(file.getContentType()).build();
+
         s3Config.s3Client().putObject(request, RequestBody.fromBytes(file.getBytes()));
         return fileName;
     }

@@ -8,7 +8,7 @@ function Register() {
     password: "",
     conformPassword: "",
   });
-  const [visible, setVisible] = useState("false");
+  const [visible, setVisible] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -70,68 +70,92 @@ function Register() {
   };
 
   return (
-    <>
-      <div className=" bg-green-200 px-4 py-6 rounded-2xl shadow-xl">
-        <form
-          action=""
-          method="post"
-          className="flex flex-col gap-6 justify-center "
-          onSubmit={handleSubmit}
-        >
-          <h1 className="text-3xl font-bold">Create Your Account</h1>
+    <section className="w-full max-w-md rounded-3xl border border-emerald-900/70 bg-[#10221e] p-6 shadow-2xl shadow-black/30 sm:p-9">
+      <div className="mb-8">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-emerald-400">
+          Join Musy
+        </p>
+        <h1 className="text-3xl font-bold tracking-tight text-white">
+          Create your account
+        </h1>
+        <p className="mt-2 text-sm text-slate-400">
+          Build your listening space and share what you make.
+        </p>
+      </div>
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        <label className="block text-sm font-medium text-slate-300">
+          Username
           <input
             type="text"
-            placeholder="username"
             name="username"
-            value={formData.name}
+            placeholder="Choose a username"
+            value={formData.username}
             onChange={handleChange}
+            className="mt-2 w-full rounded-xl border border-emerald-900 bg-[#0a1815] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
             required
           />
+        </label>
+        <label className="block text-sm font-medium text-slate-300">
+          Email
           <input
             type="email"
-            placeholder="email"
             name="email"
+            placeholder="you@example.com"
             value={formData.email}
             onChange={handleChange}
+            className="mt-2 w-full rounded-xl border border-emerald-900 bg-[#0a1815] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
             required
           />
-          <div className="vis">
+        </label>
+        <label className="block text-sm font-medium text-slate-300">
+          Password
+          <div className="relative mt-2">
             <input
               type={visible ? "text" : "password"}
-              placeholder="Passwords"
               name="password"
+              placeholder="Create a password"
               value={formData.password}
               onChange={handleChange}
+              className="w-full rounded-xl border border-emerald-900 bg-[#0a1815] px-4 py-3 pr-16 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
               required
             />
             <button
               type="button" // important: type="button" else it will submit form
               onClick={handlePasswordVisibility}
-              className="p-2"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-emerald-300 hover:text-emerald-200"
             >
               {visible ? "Hide" : "Show"}
             </button>
           </div>
+        </label>
 
+        <label className="block text-sm font-medium text-slate-300">
+          Confirm password
           <input
             type="password"
-            placeholder="ConformPassword"
+            placeholder="Repeat your password"
             name="conformPassword"
             value={formData.conformPassword}
             onChange={handleChange}
+            className="mt-2 w-full rounded-xl border border-emerald-900 bg-[#0a1815] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
             required
           />
+        </label>
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <button
-            type="submit"
-            className=" rounded-sm bg-green-500 h-9 font-bold text-xl"
-          >
-            {loading ? "Registering...." : "Register"}
-          </button>
-        </form>
-      </div>
-    </>
+        {error && (
+          <p className="rounded-xl bg-red-400/10 px-4 py-3 text-sm text-red-300">
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          className="w-full rounded-xl bg-emerald-400 px-5 py-3.5 font-bold text-[#071412] transition hover:bg-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-[#10221e] disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={loading}
+        >
+          {loading ? "Creating account..." : "Create account"}
+        </button>
+      </form>
+    </section>
   );
 }
 

@@ -28,4 +28,17 @@ public record SongResponse(
                 entity.getStream_count(),
                 entity.getCreated_At());
     }
+
+    public static SongResponse from(Song entity, String songUrl, String coverUrl) {
+        return new SongResponse(
+                entity.getSong_id(),
+                entity.getUser().getUser_id(),
+                entity.getTitle(),
+                songUrl,
+                coverUrl,
+                entity.getDescription(),
+                entity.getGenre(),
+                entity.getStream_count(),
+                entity.getCreated_At());
+    }
 }
