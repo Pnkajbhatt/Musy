@@ -29,12 +29,10 @@ public class Like {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "song_id")
-
     private Song song;
 
     @Column(name = "createdAt")

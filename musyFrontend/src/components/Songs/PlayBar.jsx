@@ -1,10 +1,21 @@
-function PlayBar({ currentSong }) {
+function PlayBar({ currentSong, onOpenSong }) {
   return (
-    <div className="fixed bottom-0 inset-x-0 z-50 border-t border-zinc-200 bg-green p-4">
+    <div
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-emerald-200 bg-emerald-50 p-4"
+      onClick={() => currentSong && onOpenSong?.()}
+      role={currentSong ? "button" : undefined}
+      tabIndex={currentSong ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (currentSong && (event.key === "Enter" || event.key === " ")) {
+          event.preventDefault();
+          onOpenSong?.();
+        }
+      }}
+    >
       {!currentSong ? (
         <div>
           <p className="font-semibold">Nothing playing</p>
-          <p className="text-sm text-green-300">
+          <p className="text-sm text-emerald-700">
             Choose a song to start listening
           </p>
         </div>
@@ -16,19 +27,21 @@ function PlayBar({ currentSong }) {
             className="h-14 w-14 rounded-lg object-cover shrink-0"
           />
 
-          <div className="min-w-0 shrink-0 max-w-[200px]">
+          <div className="min-w-0 max-w-50 shrink-0">
             <h3 className="font-semibold truncate">
               {currentSong.title ?? "Untitled song"}
             </h3>
             <p className="text-sm text-zinc-500 truncate">
               {currentSong.genre ?? "Music"}
             </p>
+            <p>{currentSong.songLikes ?? 0} likes</p>
           </div>
 
           <div className="flex-1 min-w-0">
             <audio
               controls
-              src={currentSong.songUrl}
+              src={currentSong.songUrl ?? currentSong.song_url}
+              onClick={(event) => event.stopPropagation()}
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.code === "Space") {
@@ -36,8 +49,8 @@ function PlayBar({ currentSong }) {
                   e.target.paused ? e.target.play() : e.target.pause();
                 }
               }}
-              className="w-full accent-emerald-500 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 rounded-md [&::-webkit-media-controls-enclosure]:bg-emerald-50 [&::-webkit-media-controls-panel]:bg-emerald-50 [&::-webkit-media-controls-timeline]:bg-emerald-200 [&::-webkit-media-controls-timeline]:border-emerald-500 [&::-webkit-media-controls-volume-slider]:bg-emerald-200"
-            ></audio>
+              className="w-full bg-transparent accent-emerald-500 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 rounded-md"
+            />
           </div>
         </div>
       )}

@@ -75,6 +75,12 @@ function SomeUpload() {
       }
 
       setMessage("Song uploaded successfully");
+      setSongRequest({
+        title: "",
+        description: "",
+        userId: "",
+        genre: "",
+      });
     } catch (error) {
       setMessage(error.message);
     }

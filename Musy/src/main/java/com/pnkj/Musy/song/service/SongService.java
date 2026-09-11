@@ -42,7 +42,7 @@ public class SongService {
                 repository.findById(songId)
                         .orElseThrow(() -> new IllegalArgumentException("Song not found")));
     }
-
+    
     public List<SongResponse> allSongs() {
         return repository.findAll().stream().map(this::toResponse).toList();
     }

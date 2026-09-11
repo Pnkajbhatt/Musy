@@ -51,7 +51,10 @@ public class Song {
     private Genre genre;
 
     @Column(name = "stream_count")
-    private Long stream_count;
+    private Long stream_count = 0L;
+
+    @Column(name = "SongLike")
+    private Long songLike = 0L;
 
     @Column(name = "createdAt")
     private Instant created_At = Instant.now();

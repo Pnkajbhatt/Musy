@@ -12,17 +12,17 @@ function SongCard({ song, onPlay }) {
       onClick={handlePlay}
       className="
         group
-        flex max-w-xl gap-4
+        flex max-w-xl gap-2
         rounded-2xl
-        border border-zinc-200
+        border border-zinc-100
         p-2
         shadow-sm
         transition-shadow
         hover:cursor-pointer
-        hover:shadow-md
+        hover:shadow-md 
+        w-96
       "
     >
-      {/* Cover */}
       <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-zinc-100 sm:h-32 sm:w-32">
         {coverUrl ? (
           <img

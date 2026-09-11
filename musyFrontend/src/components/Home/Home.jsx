@@ -17,7 +17,7 @@ function Home({ onPlay }) {
   }, []);
 
   return (
-    <div>
+    <div className="flex gap-5 flex-wrap">
       {songs.map((song) => (
         <SongCard
           key={song.songId ?? song.song_id}
