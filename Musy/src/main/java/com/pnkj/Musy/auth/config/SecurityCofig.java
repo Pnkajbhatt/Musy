@@ -1,7 +1,5 @@
 package com.pnkj.Musy.auth.config;
 
-import java.net.http.HttpRequest;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,16 +23,19 @@ public class SecurityCofig {
 
     private final CustomUserDetailsService customUserDetails;
     private final JwtAuthFilter jwtAuthFilter;
+    private final CrosConfig config;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(config.configurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/songs").permitAll()
                         .requestMatchers("/api/song/**").permitAll()
                         .requestMatchers("/api/user/**").hasAnyRole("USER", "ARTIST")
-                        .requestMatchers("/api/files/play").hasAnyRole("USER", "ADMIN", "ARTIST")
+                        .requestMatchers("/api/files/play").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

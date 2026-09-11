@@ -2,6 +2,8 @@ package com.pnkj.Musy.song.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -24,23 +26,60 @@ public class S3Service {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
+    @Value("${app.api.base-url:http://localhost:8080}")
+    private String apiBaseUrl;
+
+    public String getFileUrl(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return null;
+        }
+
+        return apiBaseUrl + "/api/files/play?fileName="
+                + URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+    }
+
     public String uploadMusic(MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("File cannot be empty");
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Music file cannot be empty");
         }
-
         if (!isSupportedAudio(file.getOriginalFilename())) {
-            throw new IllegalArgumentException(
-                    "Only MP3, WAV, FLAC and AAC files are allowed");
+            throw new IllegalArgumentException("Only MP3, WAV, FLAC and AAC files are allowed");
+        }
+        String fileName = "Audio/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+        PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(fileName)
+                .contentType(file.getContentType()).build();
+        s3Config.s3Client().putObject(request, RequestBody.fromBytes(file.getBytes()));
+        return fileName;
+    }
+
+    public String uploadCover(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Cover image cannot be empty");
+        }
+        if (!isSupportedImage(file.getOriginalFilename())) {
+            throw new IllegalArgumentException("Only JPG, JPEG and PNG files are allowed");
+        }
+        String fileName = "Cover/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+        PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(fileName)
+                .contentType(file.getContentType()).build();
+        s3Config.s3Client().putObject(request, RequestBody.fromBytes(file.getBytes()));
+        return fileName;
+    }
+
+    public String uploadProfileImage(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Cover image cannot be empty");
+        }
+        if (!isSupportedImage(file.getOriginalFilename())) {
+            throw new IllegalArgumentException("Only JPG, JPEG and PNG files are allowed");
         }
 
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String fileName = "profile/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
 
         PutObjectRequest request = PutObjectRequest.builder().bucket(bucketName).key(fileName)
                 .contentType(file.getContentType()).build();
 
         s3Config.s3Client().putObject(request, RequestBody.fromBytes(file.getBytes()));
-
         return fileName;
     }
 
@@ -59,6 +98,14 @@ public class S3Service {
                 || name.endsWith(".wav")
                 || name.endsWith(".flac")
                 || name.endsWith(".aac");
+    }
+
+    private boolean isSupportedImage(String fileName) {
+        String name = fileName.toLowerCase();
+
+        return name.endsWith(".png")
+                || name.endsWith(".jpg")
+                || name.endsWith("hpeg");
     }
 
 }

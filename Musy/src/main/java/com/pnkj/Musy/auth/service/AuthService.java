@@ -1,8 +1,5 @@
 package com.pnkj.Musy.auth.service;
 
-import java.net.Authenticator;
-
-import org.apache.coyote.Response;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
