@@ -1,18 +1,19 @@
+FROM eclipse-temurin:21-jdk AS build
+
+WORKDIR /app
+
+COPY . .
+
+RUN chmod +x mvnw
+
+RUN ./mvnw clean package -DskipTests
+
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY target/*.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-
-
-#Build jar file 
-# ./mvnw clean package -DskipTests
-#Build docker image 
-# docker build -t musy-app .
-#run the container
-# docker run -p 8080:8080 --env-file .env musy-app
