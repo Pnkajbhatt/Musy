@@ -1,3 +1,5 @@
+const apiBaseUrl = `${import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "")}/api`;
+
 async function apiFetch(url, options = {}) {
   const token = localStorage.getItem("token");
   const isFormData = options.body instanceof FormData;
@@ -11,7 +13,7 @@ async function apiFetch(url, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  return fetch(`http://localhost:8080/api/${url}`, {
+  return fetch(`${apiBaseUrl}/${url.replace(/^\//, "")}`, {
     ...options,
     headers,
   });

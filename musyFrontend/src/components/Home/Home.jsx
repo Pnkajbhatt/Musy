@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import SongCard from "../Songs/SongCard";
+import apiFetch from "../../apiFetch";
 
 function Home({ onPlay }) {
   const [songs, setSongs] = useState([]);
 
   useEffect(() => {
     async function fetchSongs() {
-      const response = await fetch("http://localhost:8080/api/songs");
+      const response = await apiFetch("songs");
 
       const data = await response.json();
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiFetch from "../../apiFetch";
 
 function Login() {
   const [formData, setFormdata] = useState({
@@ -28,7 +29,7 @@ function Login() {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:8080/api/auth/login", {
+      const response = await apiFetch("auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +79,9 @@ function Login() {
     <section className="glass w-full max-w-md rounded-3xl p-6 sm:p-9">
       <div className="mb-8">
         <p className="kicker">Welcome back</p>
-        <h1 className="font-display mt-3 text-3xl text-egg-50">Log in to Musy</h1>
+        <h1 className="font-display mt-3 text-3xl text-egg-50">
+          Log in to Musy
+        </h1>
         <p className="mt-2 text-sm text-ink-300">
           Continue listening and sharing your sound.
         </p>
