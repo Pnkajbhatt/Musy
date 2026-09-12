@@ -68,7 +68,7 @@ public class SongController {
                                 .body(response);
         }
 
-        @GetMapping("/songs")
+        @GetMapping("docker ")
         public ResponseEntity<ApiResponseSONG<List<SongResponse>>> getAllSong(HttpServletRequest httpServletRequest) {
                 ApiResponseSONG<List<SongResponse>> response = ApiResponseSONG.success(service.allSongs(), "User",
                                 httpServletRequest.getRequestURI());
