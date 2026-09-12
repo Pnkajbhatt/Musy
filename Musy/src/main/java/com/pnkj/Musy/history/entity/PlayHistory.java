@@ -26,16 +26,14 @@ import lombok.Setter;
 public class PlayHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long play_history_id;
+    private Long playHistoryId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-
+    @JoinColumn(name = "userId")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "song_id")
-
+    @JoinColumn(name = "songId")
     private Song song;
 
     @Column(name = "playedAt")

@@ -23,9 +23,9 @@ public class LikeService {
     private final UserRepository userRepository;
     private final SongRepository songRepository;
 
-    public String liked(Long id) throws NotFoundException {
+    public String liked(Long SongId) throws NotFoundException {
 
-        Song song = songRepository.findById(id).orElseThrow(() -> new NotFoundException());
+        Song song = songRepository.findById(SongId).orElseThrow(() -> new NotFoundException());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 

@@ -1,20 +1,23 @@
 function AllSongs() {
   return (
-    <div className="flex gap-2 px-4 justify-between align-middle ">
-      <input
-        type="text"
-        name="searchbar"
-        id=""
-        className=" p-1 border  rounded-md "
-        placeholder="searchSong"
-      />
-      <button
-        type="submit"
-        className=" p-1 rounded-md text-white  bg-green-600 hover:bg-green-500 hover:text-gray-200"
-      >
-        search
-      </button>
-    </div>
+    <section className="glass w-full max-w-3xl rounded-3xl p-6 sm:p-8">
+      <p className="kicker">Catalog</p>
+      <h1 className="font-display mt-3 text-3xl text-egg-50">Find a track</h1>
+      <p className="mt-2 mb-6 text-sm text-ink-300">
+        Search by title, mood, or whatever you remember of it.
+      </p>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          name="searchbar"
+          className="field mt-0"
+          placeholder="Search songs"
+        />
+        <button type="submit" className="btn-primary shrink-0 px-5 py-3">
+          Search
+        </button>
+      </div>
+    </section>
   );
 }
 

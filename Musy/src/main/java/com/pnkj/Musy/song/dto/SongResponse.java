@@ -6,7 +6,7 @@ import com.pnkj.Musy.song.entity.Genre;
 import com.pnkj.Musy.song.entity.Song;
 
 public record SongResponse(
-        Long songId,
+        Long SongId,
         Long userId,
         String title,
         String songUrl,
@@ -34,15 +34,15 @@ public record SongResponse(
 
     public static SongResponse from(Song entity, String songUrl, String coverUrl) {
         return new SongResponse(
-                entity.getSong_id(),
-                entity.getUser().getUser_id(),
+                entity.getSongId(),
+                entity.getUser().getUserId(),
                 entity.getTitle(),
                 songUrl,
                 coverUrl,
                 entity.getDescription(),
                 entity.getSongLike(),
                 entity.getGenre(),
-                entity.getStream_count(),
-                entity.getCreated_At());
+                entity.getStreamCount(),
+                entity.getCreatedAt());
     }
 }

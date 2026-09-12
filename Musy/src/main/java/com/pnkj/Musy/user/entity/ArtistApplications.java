@@ -31,7 +31,7 @@ public class ArtistApplications {
     private Long ApplicationID;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     @Column(nullable = false)

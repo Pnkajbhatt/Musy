@@ -28,10 +28,26 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#071412] text-slate-100">
+    <div className="app-shell min-h-screen text-ink-50">
+      <div className="ambient-blob ambient-blob-twelve" aria-hidden="true" />
+
+      <div className="ambient-blob ambient-blob-one" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-two" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-three" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-four" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-five" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-six" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-seven" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-eight" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-ten" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-eleven" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-nine" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-thirteen" aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-fourteen " aria-hidden="true" />
+      <div className="ambient-blob ambient-blob-fifteen " aria-hidden="true" />
       <NavBar />
 
-      <main className="mx-auto flex min-h-[calc(100vh-76px)] max-w-7xl items-center justify-center px-4 py-8 pb-28 sm:px-8">
+      <main className="mx-auto flex min-h-[calc(100vh-76px)] w-full max-w-7xl items-start justify-center px-4 py-8 pb-32 sm:px-8">
         <Routes>
           <Route path="/" element={<Home onPlay={setCurrentSong} />} />
           <Route

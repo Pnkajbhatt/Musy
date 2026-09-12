@@ -17,14 +17,26 @@ function Home({ onPlay }) {
   }, []);
 
   return (
-    <div className="flex gap-5 flex-wrap">
-      {songs.map((song) => (
-        <SongCard
-          key={song.songId ?? song.song_id}
-          song={song}
-          onPlay={onPlay}
-        />
-      ))}
+    <div className="w-full">
+      <header className="mb-8 max-w-2xl">
+        <p className="kicker">Listening room</p>
+        <h1 className="font-display mt-3 text-4xl leading-tight text-egg-50 sm:text-5xl">
+          Songs with a little more warmth.
+        </h1>
+        <p className="mt-3 max-w-lg text-sm leading-6 text-ink-300">
+          A quiet library for the tracks you keep coming back to.
+        </p>
+      </header>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {songs.map((song) => (
+          <SongCard
+            key={song.songId ?? song.song_id}
+            song={song}
+            onPlay={onPlay}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -22,18 +22,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class LikeController {
     private final LikeService likeService;
 
-    @PostMapping("/{song_id}/like")
-    public ResponseEntity<String> likedCount(@PathVariable Long song_id) throws NotFoundException {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(likeService.liked(song_id));
+    @PostMapping("/{songId}/like")
+    public ResponseEntity<String> likedCount(@PathVariable Long songId) throws NotFoundException {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(likeService.liked(songId));
     }
 
-    @GetMapping("/{song_id}/like")
-    public ResponseEntity<Long> GetlikedCount(@PathVariable Long song_id) throws NotFoundException {
-        return ResponseEntity.status(HttpStatus.OK).body(likeService.getLikes(song_id));
+    @GetMapping("/{songId}/like")
+    public ResponseEntity<Long> GetlikedCount(@PathVariable Long songId) throws NotFoundException {
+        return ResponseEntity.status(HttpStatus.OK).body(likeService.getLikes(songId));
     }
 
-    @DeleteMapping("/{song_id}/like")
-    public ResponseEntity<String> unlike(@PathVariable Long song_id) throws NotFoundException {
-        return ResponseEntity.ok(likeService.unlike(song_id));
+    @DeleteMapping("/{songId}/like")
+    public ResponseEntity<String> unlike(@PathVariable Long songId) throws NotFoundException {
+        return ResponseEntity.ok(likeService.unlike(songId));
     }
 }

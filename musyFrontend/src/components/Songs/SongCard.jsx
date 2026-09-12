@@ -10,89 +10,45 @@ function SongCard({ song, onPlay }) {
   return (
     <article
       onClick={handlePlay}
-      className="
-        group
-        flex max-w-xl gap-2
-        rounded-2xl
-        border border-zinc-100
-        p-2
-        shadow-sm
-        transition-shadow
-        hover:cursor-pointer
-        hover:shadow-md 
-        w-96
-      "
+      className="song-card glass group flex w-full cursor-pointer gap-4 rounded-3xl p-3"
     >
-      <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-zinc-100 sm:h-32 sm:w-32">
+      <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-ink-800 sm:h-32 sm:w-32">
         {coverUrl ? (
           <img
             src={coverUrl}
             alt={`${song.title ?? "Song"} cover`}
             loading="lazy"
-            className="
-              h-full w-full
-              object-cover
-              transition-transform
-              duration-300
-              group-hover:scale-105
-            "
+            className="h-full w-full object-cover"
           />
         ) : (
-          <div className="grid h-full w-full place-items-center text-2xl text-zinc-400">
+          <div className="grid h-full w-full place-items-center bg-ink-800 text-2xl text-mist-400">
             ♪
           </div>
         )}
 
-        {/* Genre */}
-        <span className="absolute bottom-1.5 left-1.5 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur">
+        <span className="absolute bottom-1.5 left-1.5 rounded-full bg-ink-950/80 px-2 py-0.5 text-[10px] font-medium tracking-wide text-egg-100">
           {song.genre ?? "Music"}
         </span>
 
-        {/* Play overlay */}
-        <div
-          className="
-            absolute inset-0
-            grid place-items-center
-            bg-black/0
-            transition
-            duration-200
-            group-hover:bg-black/20
-          "
-        >
-          <div
-            className="
-              scale-75
-              rounded-full
-              bg-white
-              p-3
-              text-black
-              opacity-0
-              shadow-lg
-              transition
-              duration-200
-              group-hover:scale-100
-              group-hover:opacity-100
-            "
-          >
+        <div className="absolute inset-0 grid place-items-center bg-ink-950/0 transition duration-200 group-hover:bg-ink-950/25">
+          <div className="play-orb scale-75 rounded-full p-3 opacity-0 transition duration-200 group-hover:scale-100 group-hover:opacity-100">
             ▶
           </div>
         </div>
       </div>
 
-      {/* Song information */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col py-1">
         <div className="flex-1">
-          <h2 className="truncate font-semibold text-green-500">
+          <h2 className="font-display truncate text-lg text-egg-50">
             {song.title ?? "Untitled song"}
           </h2>
 
-          <p className="mt-1 line-clamp-2 text-sm text-zinc-500">
+          <p className="mt-1 line-clamp-2 text-sm leading-5 text-ink-300">
             {song.description ?? "No description available."}
           </p>
         </div>
 
-        {/* Metadata */}
-        <div className="mt-2 flex items-center gap-3 text-xs text-zinc-400">
+        <div className="mt-2 flex items-center gap-3 text-xs text-mist-400">
           <span>{song.streamCount ?? 0} plays</span>
 
           {song.createdAt && (

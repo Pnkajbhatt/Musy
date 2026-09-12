@@ -1,60 +1,98 @@
+import { useState } from "react";
 import apiFetch from "../../apiFetch";
 
 function SongPage({ song, onBack }) {
-  const handleLike = () => {
-    const songId = song.songId;
-    apiFetch(`song/${songId}/like`, {
-      method: "POST",
-    });
+  const [likeCount, setLikeCount] = useState(song.SongId);
+
+  const handleLike = async () => {
+    const songId = song?.SongId;
+
+    if (songId == null) {
+      console.error("Song ID is missing:", song);
+      return;
+    }
+
+    try {
+      const response = await apiFetch(`song/${songId}/like`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        console.error("Like request failed:", response.status);
+        return;
+      }
+
+      setLikeCount((prev) => prev + 1);
+    } catch (error) {
+      console.error("Failed to like song:", error);
+    }
   };
-  const handledisLike = () => {
-    const songId = song.songId;
-    apiFetch(`/song/${songId}/like`, {
-      method: "DELETE",
-    });
+
+  const handledisLike = async () => {
+    const songId = song?.SongId;
+
+    if (songId == null) {
+      console.error("Song ID is missing:", song);
+      return;
+    }
+
+    try {
+      const response = await apiFetch(`song/${songId}/like`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        console.error("Dislike request failed:", response.status);
+        return;
+      }
+
+      setLikeCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Failed to dislike song:", error);
+    }
   };
+
   return (
-    <section className="w-full max-w-4xl rounded-2xl bg-white p-6 text-zinc-900 shadow-sm">
+    <section className="glass w-full max-w-4xl rounded-3xl p-6 sm:p-8">
       <button
         type="button"
         onClick={onBack}
-        className="mb-6 rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50"
+        className="btn-ghost mb-6 px-3 py-2 text-sm"
       >
         Back
       </button>
 
-      <div className="grid gap-6 sm:grid-cols-[16rem_1fr]">
-        <img
-          src={song.coverUrl ?? song.cover_url}
-          alt={`${song.title ?? "Song"} cover`}
-          className="aspect-square w-full rounded-xl object-cover bg-zinc-100"
-        />
+      <div className="grid gap-8 sm:grid-cols-[16rem_1fr]">
+        <div className="overflow-hidden rounded-3xl border border-ink-800">
+          <img
+            src={song.coverUrl ?? song.cover_url}
+            alt={`${song.title ?? "Song"} cover`}
+            className="aspect-square w-full object-cover"
+          />
+        </div>
 
         <div className="flex flex-col justify-center">
-          <p className="text-sm font-medium text-emerald-600">
+          <p className="text-sm font-medium tracking-wide text-mist-500">
             {song.genre ?? "Music"}
           </p>
-          <h1 className="mt-2 text-3xl font-bold">
+          <h1 className="font-display mt-2 text-4xl text-egg-50">
             {song.title ?? "Untitled song"}
           </h1>
-          <p className="mt-3 text-zinc-600">
+          <p className="mt-3 leading-7 text-ink-300">
             {song.description ?? "No description available."}
           </p>
-          <p className="mt-4 text-sm text-zinc-500">
-            {song.streamCount ?? 0} plays
+          <p className="mt-4 text-sm text-mist-400">
+            {song.streamCount ?? 0} plays · {likeCount}likes
           </p>
-          <p className="mt-4 text-sm text-zinc-500">
-            <p>{song.songLikes ?? 0} likes</p>
-          </p>
-          <div className="flex gap-2 w-fit my-2">
+          <div className="my-4 flex w-fit gap-2">
             <button
-              className="border px-2 rounded-xl cursor-pointer"
+              className="btn-primary cursor-pointer px-4 py-2 text-sm"
               onClick={handleLike}
             >
               Like
             </button>
             <button
-              className="border px-2 rounded-xl cursor-pointer "
+              className="btn-ghost cursor-pointer px-4 py-2 text-sm"
               onClick={handledisLike}
             >
               Dislike
