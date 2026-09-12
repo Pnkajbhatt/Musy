@@ -1,3 +1,4 @@
+
 package com.pnkj.Musy.auth.config;
 
 import java.io.IOException;
@@ -21,17 +22,20 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-    private final CustomUserDetailsService customUserDetailsService;
 
+    private final CustomUserDetailsService customUserDetailsService;
     private final JwtService jwtService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         String authorization = request.getHeader("Authorization");
 
-        if (authorization == null || !authorization.startsWith("Bearer")) {
+        // No JWT provided
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -40,21 +44,37 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             String username = jwtService.ExtractUsername(token);
+
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
+
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-                if (jwtService.isTokenValid(token, userDetails.getUsername())) {
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                            username, null, userDetails.getAuthorities());
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+                if (jwtService.isTokenValid(
+                        token,
+                        userDetails.getUsername())) {
+
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
+
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request));
+
+                    SecurityContextHolder.getContext()
+                            .setAuthentication(authentication);
                 }
             }
 
         } catch (Exception e) {
+
             SecurityContextHolder.clearContext();
+
+            System.out.println(
+                    "JWT authentication failed: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
-
 }

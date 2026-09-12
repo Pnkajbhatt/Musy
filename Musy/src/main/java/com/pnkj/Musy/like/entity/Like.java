@@ -25,16 +25,14 @@ public class Like {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long like_id;
+    private Long likeId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-
+    @JoinColumn(name = "userId")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "song_id")
-
+    @JoinColumn(name = "songId")
     private Song song;
 
     @Column(name = "createdAt")

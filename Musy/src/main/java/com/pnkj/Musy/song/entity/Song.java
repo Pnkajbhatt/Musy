@@ -27,21 +27,21 @@ import lombok.Setter;
 public class Song {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Song_id;
+    private Long SongId;
 
     @NotBlank
     @Column(name = "title", unique = true)
     private String title;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     @NotBlank
-    private String song_url;
+    private String songUrl;
 
     @NotBlank
-    private String cover_url;
+    private String coverUrl;
 
     private String description;
 
@@ -51,8 +51,11 @@ public class Song {
     private Genre genre;
 
     @Column(name = "stream_count")
-    private Long stream_count;
+    private Long streamCount = 0L;
+
+    @Column(name = "SongLike")
+    private Long songLike = 0L;
 
     @Column(name = "createdAt")
-    private Instant created_At = Instant.now();
+    private Instant createdAt = Instant.now();
 }

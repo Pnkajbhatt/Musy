@@ -17,18 +17,19 @@ function NavBar() {
   ];
 
   return (
-    <header className="border-b border-emerald-950/80 bg-[#0a1815]/95">
+    <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950">
       <nav className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-5 py-4 sm:px-8">
         <NavLink
           to="/"
-          className="mr-auto text-xl font-black tracking-tight text-white"
+          className="font-display mr-auto text-2xl font-bold tracking-tight text-egg-50"
         >
-          musy<span className="text-emerald-400">.</span>
+          musy
+          <span className="text-blush-700">.</span>
         </NavLink>
 
         <form
           onSubmit={handleSearch}
-          className="order-3 flex w-full sm:order-0 sm:w-auto sm:flex-1 sm:max-w-sm"
+          className="order-3 flex w-full overflow-hidden rounded-2xl border border-ink-700/80 bg-ink-900/80 sm:order-0 sm:w-auto sm:max-w-sm sm:flex-1"
         >
           <label htmlFor="site-search" className="sr-only">
             Search songs
@@ -38,25 +39,29 @@ function NavBar() {
             type="search"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search songs"
-            className="min-w-0 flex-1 rounded-l-xl border border-emerald-900 bg-[#10221e] px-4 py-2 text-sm text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
+            placeholder="Search a mood, title, genre"
+            className="min-w-0 flex-1 bg-transparent px-4 py-2.5 text-sm text-egg-50 outline-none placeholder:text-ink-400"
           />
           <button
             type="submit"
-            className="rounded-r-xl bg-emerald-400 px-4 py-2 text-sm font-bold text-[#071412] transition hover:bg-emerald-300"
+            className="bg-ink-800 px-4 py-2 text-sm font-semibold text-egg-50 transition hover:bg-ink-700"
           >
             Search
           </button>
         </form>
 
-        <div className="flex items-center gap-1 rounded-xl bg-[#10221e] p-1">
+        <div className="flex items-center gap-1 rounded-2xl border border-ink-700/70 bg-ink-900/70 p-1">
           {navigation.map(([path, label]) => (
             <NavLink
               key={path}
               to={path}
               end={path === "/"}
               className={({ isActive }) =>
-                `rounded-lg px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "bg-emerald-400 text-[#071412]" : "text-slate-400 hover:bg-emerald-950 hover:text-white"}`
+                `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${
+                  isActive
+                    ? "nav-link-active"
+                    : "text-ink-300 hover:bg-ink-800 hover:text-egg-50"
+                }`
               }
             >
               {label}
@@ -68,14 +73,18 @@ function NavBar() {
           <NavLink
             to="/login"
             className={({ isActive }) =>
-              `rounded-lg px-3 py-2 text-sm font-semibold transition ${isActive ? "text-emerald-300" : "text-slate-400 hover:text-white"}`
+              `rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                isActive
+                  ? "text-egg-50"
+                  : "text-ink-300 hover:text-egg-50"
+              }`
             }
           >
             Log in
           </NavLink>
           <NavLink
             to="/register"
-            className="rounded-lg border border-emerald-500/50 px-3 py-2 text-sm font-semibold text-emerald-300 transition hover:border-emerald-300 hover:bg-emerald-400 hover:text-[#071412]"
+            className="btn-primary px-3 py-2 text-sm"
           >
             Sign up
           </NavLink>

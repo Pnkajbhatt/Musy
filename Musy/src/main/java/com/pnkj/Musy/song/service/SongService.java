@@ -49,8 +49,8 @@ public class SongService {
 
     private SongResponse toResponse(Song song) {
         return SongResponse.from(song,
-                s3Service.getFileUrl(song.getSong_url()),
-                s3Service.getFileUrl(song.getCover_url()));
+                s3Service.getFileUrl(song.getSongUrl()),
+                s3Service.getFileUrl(song.getCoverUrl()));
     }
 
     public Song dtoTSong(SongRequest songRequest, User user, String SongURL, String CoverURL) {
@@ -59,9 +59,9 @@ public class SongService {
         song.setTitle(songRequest.title());
         song.setDescription(songRequest.description());
         song.setUser(user);
-        song.setCover_url(CoverURL);
+        song.setCoverUrl(CoverURL);
         song.setGenre(songRequest.genre());
-        song.setSong_url(SongURL);
+        song.setSongUrl(SongURL);
         return song;
 
     }

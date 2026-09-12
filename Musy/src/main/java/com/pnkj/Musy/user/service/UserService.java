@@ -79,7 +79,7 @@ public class UserService {
         return new ApplicationsResDTO(
                 application.getApplicationID(),
                 user.getUsername(),
-                user.getUser_id(),
+                user.getUserId(),
                 application.getBio(),
                 application.getGenre(),
                 s3Service.getFileUrl(application.getProfileImage()),
@@ -114,7 +114,7 @@ public class UserService {
 
     private UserResponse userToDto(User user) {
         UserResponse userResponse = new UserResponse(
-                user.getUser_id(),
+                user.getUserId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getRole());

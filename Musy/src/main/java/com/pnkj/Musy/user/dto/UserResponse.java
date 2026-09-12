@@ -23,7 +23,7 @@ import jakarta.validation.constraints.NotNull;
 // }
 
 public record UserResponse(
-        @NotNull Long id,
+        @NotNull Long UserId,
         @NotBlank String username,
         @Email String email,
         @NotBlank Role role) {

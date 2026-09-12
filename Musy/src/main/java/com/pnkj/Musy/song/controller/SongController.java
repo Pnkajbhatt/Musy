@@ -50,18 +50,18 @@ public class SongController {
         }
 
         @DeleteMapping("/song/{id}")
-        public ResponseEntity<ApiResponseSONG<Void>> deleteSong(@PathVariable Long id,
+        public ResponseEntity<ApiResponseSONG<Void>> deleteSong(@PathVariable Long SongId,
                         HttpServletRequest httpServletRequest) {
-                service.deleteSong(id);
+                service.deleteSong(SongId);
                 ApiResponseSONG<Void> response = ApiResponseSONG.success(null, "Song has been deleted",
                                 httpServletRequest.getRequestURI());
                 return ResponseEntity.status(HttpStatus.OK).body(response);
         }
 
         @GetMapping("/song/{id}")
-        public ResponseEntity<ApiResponseSONG<SongResponse>> findsong(@PathVariable Long id,
+        public ResponseEntity<ApiResponseSONG<SongResponse>> findsong(@PathVariable Long SongId,
                         HttpServletRequest httpServletRequest) {
-                ApiResponseSONG<SongResponse> response = ApiResponseSONG.success(service.findSong(id), "User",
+                ApiResponseSONG<SongResponse> response = ApiResponseSONG.success(service.findSong(SongId), "User",
                                 httpServletRequest.getRequestURI());
 
                 return ResponseEntity.status(HttpStatus.FOUND)
