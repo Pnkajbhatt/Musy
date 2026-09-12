@@ -11,7 +11,7 @@ async function apiFetch(url, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  return fetch(`http://localhost:8080/api/${url}`, {
+  return fetch(`${import.meta.env.VITE_BACKEND_URL}${url}`, {
     ...options,
     headers,
   });

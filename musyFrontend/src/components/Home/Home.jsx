@@ -6,7 +6,9 @@ function Home({ onPlay }) {
 
   useEffect(() => {
     async function fetchSongs() {
-      const response = await fetch("http://localhost:8080/api/songs");
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/songs`,
+      );
 
       const data = await response.json();
 
