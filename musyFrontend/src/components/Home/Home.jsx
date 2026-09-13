@@ -7,7 +7,7 @@ function Home({ onPlay }) {
 
   useEffect(() => {
     async function fetchSongs() {
-      const response = await apiFetch("songs");
+      const response = await apiFetch("song");
 
       const data = await response.json();
 

@@ -33,7 +33,7 @@ public class SecurityCofig {
                 .cors(cors -> cors.configurationSource(config.configurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/songs").permitAll()
+                        .requestMatchers("/api/song", "/api/songs").permitAll()
                         .requestMatchers("/api/song/**").permitAll()
                         .requestMatchers("/api/user/**").hasAnyRole("USER", "ARTIST")
                         .requestMatchers("/api/files/play").permitAll()

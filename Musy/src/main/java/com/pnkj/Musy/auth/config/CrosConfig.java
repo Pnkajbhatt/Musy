@@ -16,7 +16,7 @@ public class CrosConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.addAllowedOrigin("https://musy-lovat.vercel.app");
-
+        configuration.addAllowedOrigin("http://localhost:5173");
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
 
