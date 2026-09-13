@@ -84,6 +84,12 @@ public class S3Service {
     }
 
     public InputStream Download(String fileName) throws IOException {
+        if (fileName == null || fileName.isBlank()) {
+            throw new IOException("S3 file key cannot be blank");
+        }
+
+        System.out.println("BUCKET: [" + bucketName + "]");
+        System.out.println("KEY: [" + fileName + "]");
 
         GetObjectRequest req = GetObjectRequest.builder()
                 .bucket(bucketName).key(fileName).build();
