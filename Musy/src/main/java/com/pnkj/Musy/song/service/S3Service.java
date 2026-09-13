@@ -26,7 +26,7 @@ public class S3Service {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    @Value("${app.api.base-url:http://localhost:8080}")
+    @Value("${app.api.base-url:http://ec2-13-201-80-234.ap-south-1.compute.amazonaws.com:8080}")
     private String apiBaseUrl;
 
     public String getFileUrl(String fileName) {
@@ -105,7 +105,7 @@ public class S3Service {
 
         return name.endsWith(".png")
                 || name.endsWith(".jpg")
-                || name.endsWith("hpeg");
+                || name.endsWith("jpeg");
     }
 
 }
