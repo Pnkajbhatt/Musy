@@ -1,4 +1,4 @@
-package com.pnkj.Musy.user.entity;
+package in.pnkj.user_service.entity;
 
 /**
  * ApplicationsStatus

@@ -6,9 +6,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.pnkj.Musy.auth.config.CustomUserDetails;
-import com.pnkj.Musy.user.entity.User;
-import com.pnkj.Musy.user.repository.UserRepository;
 
+import in.pnkj.user_service.entity.User;
+import in.pnkj.user_service.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

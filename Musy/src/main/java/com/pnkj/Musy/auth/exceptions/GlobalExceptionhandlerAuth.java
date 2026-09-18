@@ -1,9 +1,10 @@
 package com.pnkj.Musy.auth.exceptions;
 
-import com.pnkj.Musy.auth.dto.ApiErrorAuth;
-import com.pnkj.Musy.auth.dto.ApiResponseAuth;
 import com.pnkj.Musy.user.dto.*;
 
+import in.pnkj.auth_service.dto.ApiErrorAuth;
+import in.pnkj.auth_service.dto.ApiResponseAuth;
+import in.pnkj.user_service.dto.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpStatus;

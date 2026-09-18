@@ -1,4 +1,4 @@
-package com.pnkj.Musy.user.dto;
+package in.pnkj.user_service.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 

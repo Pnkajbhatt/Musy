@@ -13,7 +13,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import com.pnkj.Musy.song.entity.Song;
-import com.pnkj.Musy.user.entity.User;
+
+import in.pnkj.user_service.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 

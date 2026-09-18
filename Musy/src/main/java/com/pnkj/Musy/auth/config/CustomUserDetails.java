@@ -8,8 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.pnkj.Musy.user.entity.User;
-
+import in.pnkj.user_service.entity.User;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

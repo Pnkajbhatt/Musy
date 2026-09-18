@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 import com.pnkj.Musy.history.entity.PlayHistory;
 import com.pnkj.Musy.song.entity.Song;
 import com.pnkj.Musy.song.repository.SongRepository;
-import com.pnkj.Musy.user.entity.User;
-import com.pnkj.Musy.user.repository.UserRepository;
 
+import in.pnkj.user_service.entity.User;
+import in.pnkj.user_service.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

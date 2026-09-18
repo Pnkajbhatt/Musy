@@ -2,6 +2,7 @@ package com.pnkj.Musy.song.entity;
 
 import java.time.Instant;
 
+import in.pnkj.user_service.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,8 +15,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import com.pnkj.Musy.user.entity.User;
 import lombok.Getter;
 
 import lombok.Setter;

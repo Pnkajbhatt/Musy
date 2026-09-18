@@ -8,9 +8,9 @@ import com.pnkj.Musy.song.dto.SongRequest;
 import com.pnkj.Musy.song.dto.SongResponse;
 import com.pnkj.Musy.song.entity.Song;
 import com.pnkj.Musy.song.repository.SongRepository;
-import com.pnkj.Musy.user.entity.User;
-import com.pnkj.Musy.user.repository.UserRepository;
 
+import in.pnkj.user_service.entity.User;
+import in.pnkj.user_service.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

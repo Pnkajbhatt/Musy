@@ -1,8 +1,8 @@
-package com.pnkj.Musy.user.dto;
+package in.pnkj.user_service.dto;
 
 import java.time.LocalDateTime;
 
-import com.pnkj.Musy.user.entity.ApplicationStatus;
+import in.pnkj.user_service.entity.ApplicationStatus;
 
 public record ApplicationsResDTO(
         Long applicationID,

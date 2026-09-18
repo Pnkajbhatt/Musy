@@ -1,7 +1,8 @@
-package com.pnkj.Musy.user.repository;
+package in.pnkj.user_service.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.pnkj.Musy.user.entity.ArtistApplications;
+
+import in.pnkj.user_service.entity.ArtistApplications;
 
 public interface ArtistApplicationRepository extends JpaRepository<ArtistApplications, Long> {
 

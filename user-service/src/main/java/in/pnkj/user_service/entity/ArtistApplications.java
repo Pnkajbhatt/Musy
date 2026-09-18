@@ -1,8 +1,6 @@
-package com.pnkj.Musy.user.entity;
+package in.pnkj.user_service.entity;
 
 import java.time.LocalDateTime;
-
-import com.pnkj.Musy.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

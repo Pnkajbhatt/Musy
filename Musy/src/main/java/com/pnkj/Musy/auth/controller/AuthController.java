@@ -2,13 +2,12 @@ package com.pnkj.Musy.auth.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.pnkj.Musy.auth.dto.LoginReqDTO;
-import com.pnkj.Musy.auth.dto.LoginResDTO;
-import com.pnkj.Musy.auth.dto.RegisterReqDTO;
-import com.pnkj.Musy.auth.dto.RegisterResDTO;
-import com.pnkj.Musy.auth.service.AuthService;
-import com.pnkj.Musy.user.dto.ApiResponse;
-
+import in.pnkj.auth_service.dto.LoginReqDTO;
+import in.pnkj.auth_service.dto.LoginResDTO;
+import in.pnkj.auth_service.dto.RegisterReqDTO;
+import in.pnkj.auth_service.dto.RegisterResDTO;
+import in.pnkj.auth_service.service.AuthService;
+import in.pnkj.user_service.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
