@@ -2,6 +2,8 @@ package com.pnkj.Musy.song.exceptions;
 
 import com.pnkj.Musy.song.dto.*;
 
+import in.pnkj.music_service.dto.ApiErrorSONG;
+import in.pnkj.music_service.dto.ApiResponseSONG;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;

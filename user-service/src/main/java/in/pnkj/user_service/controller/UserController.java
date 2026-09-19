@@ -4,9 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import in.pnkj.user_service.dto.CreateUserRequestDTO;
-import in.pnkj.user_service.dto.CreateUserResponseDTO;
-
+import in.pnkj.user_service.entity.dto.CreateUserRequestDTO;
+import in.pnkj.user_service.entity.dto.CreateUserResponseDTO;
 import in.pnkj.user_service.service.UserService;
 import jakarta.validation.Valid;
 

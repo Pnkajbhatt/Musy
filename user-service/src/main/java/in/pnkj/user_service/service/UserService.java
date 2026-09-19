@@ -2,11 +2,13 @@ package in.pnkj.user_service.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import in.pnkj.user_service.dto.CreateUserRequestDTO;
-import in.pnkj.user_service.dto.CreateUserResponseDTO;
+
+import in.pnkj.user_service.entity.dto.AuthUserResponseDTO;
+import in.pnkj.user_service.entity.dto.CreateUserRequestDTO;
 import in.pnkj.user_service.entity.Role;
 import in.pnkj.user_service.entity.RoleType;
 import in.pnkj.user_service.entity.User;
+import in.pnkj.user_service.entity.dto.CreateUserResponseDTO;
 import in.pnkj.user_service.exceptions.DuplicateResourceException;
 import in.pnkj.user_service.exceptions.ResourceNotFoundException;
 import in.pnkj.user_service.repo.RoleRepository;
@@ -41,6 +43,13 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         return new CreateUserResponseDTO(savedUser.getUserId(), savedUser.getUsername());
+    }
+
+    public AuthUserResponseDTO getUserForAuth(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("user not Found"));
+        return new AuthUserResponseDTO(user.getUserId(), user.getUsername(), user.getPassword(),
+                user.getRole().getName().name());
     }
 
     // public String deleteUser(Long id) {

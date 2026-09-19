@@ -1,4 +1,4 @@
-package com.pnkj.Musy.song.controller;
+package in.pnkj.music_service.controller;
 
 import java.io.IOException;
 import java.util.List;
@@ -49,8 +49,7 @@ public class SongController {
         }
 
         @DeleteMapping("/song/{id}")
-        public ResponseEntity<ApiResponseSONG<Void>> deleteSong(
-        @PathVariable("id") Long songId,
+        public ResponseEntity<ApiResponseSONG<Void>> deleteSong(@PathVariable("id") Long songId,
                         HttpServletRequest httpServletRequest) {
                 service.deleteSong(songId);
                 ApiResponseSONG<Void> response = ApiResponseSONG.success(null, "Song has been deleted",
@@ -64,8 +63,7 @@ public class SongController {
                 ApiResponseSONG<SongResponse> response = ApiResponseSONG.success(service.findSong(songId), "User",
                                 httpServletRequest.getRequestURI());
 
-                return ResponseEntity.status(HttpStatus.FOUND)
-                                .body(response);
+                return ResponseEntity.status(HttpStatus.FOUND).body(response);
         }
 
         @GetMapping({ "song", "songs" })

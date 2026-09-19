@@ -1,4 +1,13 @@
 spring:
+  config:
+    import: "optional:file:./music-service/.env[.properties]"
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: upadate
   application:
     name: music-service
 

@@ -10,10 +10,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  jwt:
+    secret: ${JWT_SECRETE_KEY}
+    expiration-ms: ${JWT_EXPIRE}
+
+
 server:
   port: 8082
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     register-with-eureka: true
     fetch-registry: true

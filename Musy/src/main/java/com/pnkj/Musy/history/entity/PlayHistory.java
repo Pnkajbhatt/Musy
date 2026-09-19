@@ -12,9 +12,7 @@ import jakarta.persistence.JoinColumn;
 
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
-import com.pnkj.Musy.song.entity.Song;
-
+import in.pnkj.music_service.entity.Song;
 import in.pnkj.user_service.entity.User;
 import lombok.Getter;
 

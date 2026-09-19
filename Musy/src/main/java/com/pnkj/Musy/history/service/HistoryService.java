@@ -12,9 +12,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.pnkj.Musy.history.entity.PlayHistory;
-import com.pnkj.Musy.song.entity.Song;
 import com.pnkj.Musy.song.repository.SongRepository;
 
+import in.pnkj.music_service.entity.Song;
 import in.pnkj.user_service.entity.User;
 import in.pnkj.user_service.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
