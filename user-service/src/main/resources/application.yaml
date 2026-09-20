@@ -14,7 +14,6 @@ spring:
     secret: ${JWT_SECRETE_KEY}
     expiration-ms: ${JWT_EXPIRE}
 
-
 server:
   port: 8082
 
@@ -27,4 +26,4 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/

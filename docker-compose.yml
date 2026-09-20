@@ -95,17 +95,17 @@ services:
   #   networks:
   #     - musy-network
 
-  musy-frontend:
-    build:
-      context: ./musyFrontend
-      dockerfile: Dockerfile
-    container_name: musy-frontend
-    ports:
-      - "5173:80"
-    depends_on:
-      - api-gateway
-    networks:
-      - musy-network
+  # musy-frontend:
+  #   build:
+  #     context: ./musyFrontend
+  #     dockerfile: Dockerfile
+  #   container_name: musy-frontend
+  #   ports:
+  #     - "5173:80"
+  #   depends_on:
+  #     - api-gateway
+  #   networks:
+  #     - musy-network
 
 networks:
   musy-network:
