@@ -95,18 +95,17 @@ services:
   #   networks:
   #     - musy-network
 
-  # Optional: musyFrontend if you also want to containerize and run the frontend
-  # musy-frontend:
-  #   build:
-  #     context: ./musyFrontend
-  #     dockerfile: Dockerfile
-  #   container_name: musy-frontend
-  #   ports:
-  #     - "5173:5173"
-  #   depends_on:
-  #     - api-gateway
-  #   networks:
-  #     - musy-network
+  musy-frontend:
+    build:
+      context: ./musyFrontend
+      dockerfile: Dockerfile
+    container_name: musy-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - musy-network
 
 networks:
   musy-network:
