@@ -53,3 +53,20 @@ jobs:
           context: ./music-service
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-music:latest
+
+  deploy-to-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/Musy
+            git pull origin main
+            sudo docker compose pull
+            sudo docker compose up -d
