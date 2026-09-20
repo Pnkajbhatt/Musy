@@ -24,7 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String authHeader = request.getHeader("Authentication");
+        String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -35,13 +35,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             if (jwtService.isTokenValid(token)) {
-                Long userId = jwtService.extractUserId(token);
+                String username = jwtService.ExtractUsername(token);
                 List<String> authorities = jwtService.extractAuthorities(token);
-                List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream().map(SimpleGrantedAuthority::new)
+                List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream()
+                        .filter(authority -> authority != null && authority.startsWith("ROLE_"))
+                        .map(SimpleGrantedAuthority::new)
                         .toList();
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
-                        null, grantedAuthorities);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        grantedAuthorities);
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -50,5 +54,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-
 }

@@ -27,8 +27,7 @@ public class JwtService {
 
     public boolean isTokenValid(String token) {
         try {
-            parseClaims(token);
-            return true;
+            return parseClaims(token).getExpiration().after(new Date());
         } catch (Exception e) {
             return false;
         }
@@ -45,6 +44,7 @@ public class JwtService {
     @SuppressWarnings("unchecked")
     public List<String> extractAuthorities(String token) {
 
-        return (List<String>) parseClaims(token).get("authorities");
+        List<String> authorities = (List<String>) parseClaims(token).get("authorities");
+        return authorities == null ? List.of() : authorities;
     }
 }

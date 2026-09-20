@@ -1,10 +1,15 @@
 spring:
   application:
     name: api-gateway-service
+  codec:
+    max-in-memory-size: 20MB
   cloud:
     gateway:
       server:
         webflux:
+          httpclient:
+            connect-timeout: 30000
+            response-timeout: 120s
           routes:
             - id: user-service
               uri: lb://user-service
@@ -17,11 +22,15 @@ spring:
             - id: music-service
               uri: lb://music-service
               predicates:
-                - Path=/api/music/**
+                - Path=/api/song,/api/song/**,/api/songs,/api/songs/**,/api/files/**
 server:
   port: 8080
 
 eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
   client:
     register-with-eureka: true
     fetch-registry: true

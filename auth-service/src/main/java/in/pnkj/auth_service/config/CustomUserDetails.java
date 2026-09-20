@@ -14,6 +14,10 @@ import lombok.RequiredArgsConstructor;
 public class CustomUserDetails implements UserDetails {
     private final AuthUserDTO user;
 
+    public Long getUserId() {
+        return user.userId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.role()));

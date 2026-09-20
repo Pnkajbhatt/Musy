@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import in.pnkj.auth_service.config.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -30,11 +31,16 @@ public class JwtService {
     public String GenerateJwtToken(Authentication authentication) {
         List<String> authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
+                .filter(authority -> authority != null && authority.startsWith("ROLE_"))
                 .toList();
         Date issuedAt = new Date();
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .subject(authentication.getName())
-                .claim("authorities", authorities)
+                .claim("authorities", authorities);
+        if (authentication.getPrincipal() instanceof CustomUserDetails details) {
+            builder.claim("userId", details.getUserId());
+        }
+        return builder
                 .issuedAt(issuedAt)
                 .expiration(new Date(issuedAt.getTime() + expirationMs))
                 .signWith(signedKey)

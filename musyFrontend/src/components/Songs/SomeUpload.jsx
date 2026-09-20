@@ -5,7 +5,6 @@ function SomeUpload() {
   const [songRequest, setSongRequest] = useState({
     title: "",
     description: "",
-    userId: "",
     genre: "",
   });
   const [songFile, setSongFile] = useState(null);
@@ -47,7 +46,6 @@ function SomeUpload() {
           [
             JSON.stringify({
               ...songRequest,
-              userId: Number(songRequest.userId),
             }),
           ],
           { type: "application/json" },
@@ -78,7 +76,7 @@ function SomeUpload() {
       setSongRequest({
         title: "",
         description: "",
-        userId: "",
+
         genre: "",
       });
     } catch (error) {
@@ -87,7 +85,10 @@ function SomeUpload() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass w-full max-w-4xl overflow-hidden rounded-3xl">
+    <form
+      onSubmit={handleSubmit}
+      className="glass w-full max-w-4xl overflow-hidden rounded-3xl"
+    >
       <div className="border-b border-mist-800/40 px-6 py-7 sm:px-10">
         <p className="kicker">Musy creator studio</p>
         <h1 className="font-display mt-3 text-3xl text-egg-50 sm:text-4xl">
@@ -126,18 +127,6 @@ function SomeUpload() {
           </label>
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm font-medium text-mist-200">
-              User ID
-              <input
-                type="number"
-                name="userId"
-                placeholder="Your user ID"
-                value={songRequest.userId}
-                onChange={handleChange}
-                className="field"
-                required
-              />
-            </label>
-            <label className="block text-sm font-medium text-mist-200">
               Genre
               <input
                 type="text"
@@ -173,7 +162,9 @@ function SomeUpload() {
             <span className="mt-2 text-sm font-semibold text-egg-50">
               {coverFile ? coverFile.name : "Choose cover image"}
             </span>
-            <span className="mt-1 text-xs text-ink-400">JPG or PNG artwork</span>
+            <span className="mt-1 text-xs text-ink-400">
+              JPG or PNG artwork
+            </span>
           </label>
           <input
             type="file"
@@ -183,7 +174,10 @@ function SomeUpload() {
             className="sr-only"
             required
           />
-          <button type="submit" className="btn-primary w-full px-5 py-3.5 text-sm">
+          <button
+            type="submit"
+            className="btn-primary w-full px-5 py-3.5 text-sm"
+          >
             Upload song
           </button>
           {message && (
