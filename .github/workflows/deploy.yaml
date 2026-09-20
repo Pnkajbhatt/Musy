@@ -1,28 +1,55 @@
-name: Deploy to EC2
+name: Build and Push Docker Images
 
 on:
   push:
     branches:
-      - main # Or your default branch
+      - main
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /path/to/your/project/Musy
-            git pull origin main
-            
-            # Restart the services and rebuild if there are new changes
-            docker-compose down
-            docker-compose up -d --build
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Eureka
+        uses: docker/build-push-action@v6
+        with:
+          context: ./eureka-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-eureka:latest
+
+      - name: Build and Push API Gateway
+        uses: docker/build-push-action@v6
+        with:
+          context: ./api-gateway-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-api-gateway:latest
+
+      - name: Build and Push Auth
+        uses: docker/build-push-action@v6
+        with:
+          context: ./auth-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-auth:latest
+
+      - name: Build and Push User
+        uses: docker/build-push-action@v6
+        with:
+          context: ./user-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-user:latest
+
+      - name: Build and Push Music
+        uses: docker/build-push-action@v6
+        with:
+          context: ./music-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-music:latest
