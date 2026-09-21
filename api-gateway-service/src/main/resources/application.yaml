@@ -20,24 +20,23 @@ spring:
             allowCredentials: true
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
-      server:
-        webflux:
-          httpclient:
-            connect-timeout: 30000
-            response-timeout: 120s
-          routes:
-            - id: user-service
-              uri: lb://user-service
-              predicates:
-                - Path=/api/users/**
-            - id: auth-service
-              uri: lb://auth-service
-              predicates:
-                - Path=/api/auth/**
-            - id: music-service
-              uri: lb://music-service
-              predicates:
-                - Path=/api/song,/api/song/**,/api/songs,/api/songs/**,/api/files/**
+      httpclient:
+        connect-timeout: 30000
+        response-timeout: 120s
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+        - id: music-service
+          uri: lb://music-service
+          predicates:
+            - Path=/api/song,/api/song/**,/api/songs,/api/songs/**,/api/files/**
+
 server:
   port: 8080
 
