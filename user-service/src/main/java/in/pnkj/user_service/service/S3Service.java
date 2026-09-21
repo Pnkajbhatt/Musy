@@ -1,4 +1,4 @@
-package in.pnkj.music_service.service;
+package in.pnkj.user_service.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import in.pnkj.music_service.config.S3Config;
+import in.pnkj.user_service.config.S3Config;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -78,7 +78,7 @@ public class S3Service {
 
     public String uploadProfileImage(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Cover image cannot be empty");
+            return null;
         }
         if (!isSupportedImage(file.getOriginalFilename())) {
             throw new IllegalArgumentException("Only JPG, JPEG and PNG files are allowed");

@@ -1,0 +1,31 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka/}
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: ${USER_SERVICE_URI:http://user-service:8082}
+              predicates:
+                - Path=/api/users,/api/users/**,/api/Admin/**,/api/admin/**
+            - id: auth-service
+              uri: ${AUTH_SERVICE_URI:http://auth-service:8081}
+              predicates:
+                - Path=/api/auth/**
+            - id: music-service
+              uri: ${MUSIC_SERVICE_URI:http://music-service:8083}
+              predicates:
+                - Path=/api/song,/api/song/**,/api/songs,/api/songs/**,/api/files/**
+            - id: like-service
+              uri: ${LIKE_SERVICE_URI:http://like-service:8084}
+              predicates:
+                - Path=/api/likes,/api/likes/**
+            - id: history-service
+              uri: ${HISTORY_SERVICE_URI:http://history-service:8085}
+              predicates:
+                - Path=/api/history,/api/history/**

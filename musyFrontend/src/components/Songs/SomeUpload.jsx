@@ -1,7 +1,18 @@
 import { useState } from "react";
-import apiFetch from "../../apiFetch";
+import { Link } from "react-router-dom";
+import apiFetch, { getCurrentUser } from "../../apiFetch";
 
 function SomeUpload() {
+  const currentUser = getCurrentUser();
+  const isArtist =
+    currentUser?.roles?.some((r) => r === "ROLE_ARTIST" || r === "ARTIST") ||
+    localStorage.getItem("role") === "ROLE_ARTIST" ||
+    localStorage.getItem("role") === "ARTIST";
+  const isAdmin =
+    currentUser?.roles?.some((r) => r === "ROLE_ADMIN" || r === "ADMIN") ||
+    localStorage.getItem("role") === "ROLE_ADMIN" ||
+    localStorage.getItem("role") === "ADMIN";
+
   const [songRequest, setSongRequest] = useState({
     title: "",
     description: "",
@@ -10,6 +21,47 @@ function SomeUpload() {
   const [songFile, setSongFile] = useState(null);
   const [coverFile, setCoverFile] = useState(null);
   const [message, setMessage] = useState("");
+
+  if (!isArtist) {
+    return (
+      <div className="glass w-full max-w-xl mx-auto overflow-hidden rounded-3xl p-8 text-center space-y-6">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-ink-800/80 text-3xl">
+          🔒
+        </div>
+        <div>
+          <h2 className="font-display text-2xl font-bold text-egg-50">
+            Artist Access Required
+          </h2>
+          <p className="mt-2 text-sm text-ink-300">
+            Uploading music is restricted to verified artists only. Regular listeners and administrators cannot upload tracks.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          {isAdmin ? (
+            <Link
+              to="/admin"
+              className="rounded-xl border border-blush-800/80 bg-blush-950/70 px-5 py-2.5 text-sm font-semibold text-blush-300 hover:bg-blush-900/80 transition"
+            >
+              Go to Admin Panel
+            </Link>
+          ) : (
+            <Link
+              to="/apply-artist"
+              className="btn-primary px-5 py-2.5 text-sm font-semibold"
+            >
+              Apply to Become an Artist
+            </Link>
+          )}
+          <Link
+            to="/"
+            className="rounded-xl border border-ink-800 bg-ink-900/60 px-5 py-2.5 text-sm font-medium text-ink-300 hover:text-egg-50 transition"
+          >
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleChange = (event) => {
     const { name, value } = event.target;

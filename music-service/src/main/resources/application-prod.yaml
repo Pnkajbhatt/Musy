@@ -1,0 +1,8 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka/}
+
+app:
+  api:
+    base-url: ${APP_API_BASE_URL:https://musy-pnkj.duckdns.org}

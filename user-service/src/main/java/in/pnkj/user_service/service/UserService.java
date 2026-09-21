@@ -1,27 +1,46 @@
 package in.pnkj.user_service.service;
 
+import in.pnkj.user_service.repo.ArtistApplicationRepository;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import in.pnkj.user_service.entity.ApplicationStatus;
+import in.pnkj.user_service.entity.ArtistApplications;
 import in.pnkj.user_service.entity.dto.AuthUserResponseDTO;
 import in.pnkj.user_service.entity.dto.CreateUserRequestDTO;
 import in.pnkj.user_service.entity.Role;
 import in.pnkj.user_service.entity.RoleType;
 import in.pnkj.user_service.entity.User;
+import in.pnkj.user_service.entity.dto.ApplicationReqDTO;
+import in.pnkj.user_service.entity.dto.ApplicationsResDTO;
 import in.pnkj.user_service.entity.dto.CreateUserResponseDTO;
+import in.pnkj.user_service.entity.dto.UserRequest;
+import in.pnkj.user_service.entity.dto.UserResponse;
 import in.pnkj.user_service.exceptions.DuplicateResourceException;
 import in.pnkj.user_service.exceptions.ResourceNotFoundException;
 import in.pnkj.user_service.repo.RoleRepository;
 import in.pnkj.user_service.repo.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
+    private final ArtistApplicationRepository artistApplicationRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     public CreateUserResponseDTO CreateUser(CreateUserRequestDTO request) {
         if (userRepository.existsByUsername(request.username())) {
@@ -52,96 +71,139 @@ public class UserService {
                 user.getRole().getName().name());
     }
 
-    // public String deleteUser(Long id) {
-    // userRepository.deleteById(id);
-    // return "user has been deleted";
-    // }
+    public String deleteUser(Long id) {
+        userRepository.deleteById(id);
+        return "user has been deleted";
+    }
 
-    // public List<UserResponse> getUsers() {
-    // return userRepository.findAll().stream().map(user ->
-    // userToDto(user)).toList();
-    // }
+    public List<UserResponse> getUsers() {
+        return userRepository.findAll().stream().map(user -> userToDto(user)).toList();
+    }
 
-    // public UserResponse getUsers(Long id) {
-    // User user = userRepository.findById(id).orElseThrow(() -> new
-    // IllegalArgumentException("user Not Found"));
-    // UserResponse userResponse = userToDto(user);
+    public UserResponse getUsers(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("user Not Found"));
+        return userToDto(user);
+    }
 
-    // return userResponse;
-    // }
+    @Transactional
+    public ApplicationsResDTO PromoteAsArtist(ApplicationReqDTO applicationReqDTO, MultipartFile profileImage)
+            throws IOException {
 
-    // public ApplicationsResDTO PromoteAsArtist(ApplicationReqDTO
-    // applicationReqDTO, MultipartFile profileImage)
-    // throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
-    // Authentication authentication =
-    // SecurityContextHolder.getContext().getAuthentication();
-    // String username = authentication.getName();
-    // User user = userRepository.findByUsername(username).orElseThrow(() -> new
-    // RuntimeException("User not found"));
+        // Check if user already has an application
+        Optional<ArtistApplications> existingOpt = artistApplicationRepository.findTopByUserOrderByCreatedAtDesc(user);
+        if (existingOpt.isPresent()) {
+            ArtistApplications existing = existingOpt.get();
+            if (existing.getApplicationStatus() == ApplicationStatus.PENDING) {
+                return applicationsToDto(existing);
+            }
+        }
 
-    // String profileImageUrl = s3Service.uploadProfileImage(profileImage);
+        MultipartFile imageToUpload = profileImage != null && !profileImage.isEmpty() ? profileImage : applicationReqDTO.ProfileImage();
+        String profileImageUrl = imageToUpload != null && !imageToUpload.isEmpty()
+                ? s3Service.uploadProfileImage(imageToUpload)
+                : null;
 
-    // ArtistApplications applications = dtoToApplication(applicationReqDTO,
-    // profileImageUrl, user);
+        ArtistApplications applications = new ArtistApplications();
+        applications.setUser(user);
+        applications.setArtistName(applicationReqDTO.artistName());
+        applications.setBio(applicationReqDTO.bio());
+        applications.setGenre(applicationReqDTO.genre());
+        applications.setProfileImage(profileImageUrl);
+        applications.setApplicationStatus(ApplicationStatus.PENDING);
+        applications.setCreatedAt(LocalDateTime.now());
 
-    // ArtistApplications savedApplication =
-    // applicationRepository.save(applications);
-    // return applicationsToDto(savedApplication);
+        ArtistApplications savedApplication = artistApplicationRepository.save(applications);
+        return applicationsToDto(savedApplication);
+    }
 
-    // }
+    public ApplicationsResDTO getMyApplication() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            return null;
+        }
+        return artistApplicationRepository.findTopByUserOrderByCreatedAtDesc(user)
+                .map(this::applicationsToDto)
+                .orElse(null);
+    }
 
-    // public List<ApplicationsResDTO> getALLApplication() {
-    // return applicationRepository.findAll().stream().map(application ->
-    // applicationsToDto(application)).toList();
-    // }
+    public List<ApplicationsResDTO> getALLApplication() {
+        return artistApplicationRepository.findAll().stream()
+                .map(this::applicationsToDto)
+                .toList();
+    }
 
-    // private ApplicationsResDTO applicationsToDto(ArtistApplications application)
-    // {
-    // User user = application.getUser();
+    @Transactional
+    public ApplicationsResDTO approveApplication(Long applicationId) {
+        ArtistApplications application = artistApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with ID: " + applicationId));
 
-    // return new ApplicationsResDTO(application.getApplicationID(),
-    // user.getUsername(), user.getUserId(),
-    // application.getBio(), application.getGenre(),
-    // s3Service.getFileUrl(application.getProfileImage()),
-    // application.getArtistName(), application.getApplicationStatus(),
-    // application.getCreatedAt());
+        User user = application.getUser();
+        Role artistRole = roleRepository.findByName(RoleType.ARTIST)
+                .orElseGet(() -> {
+                    Role newRole = new Role();
+                    newRole.setName(RoleType.ARTIST);
+                    return roleRepository.save(newRole);
+                });
 
-    // }
+        user.setRole(artistRole);
+        userRepository.save(user);
 
-    // private ArtistApplications dtoToApplication(ApplicationReqDTO
-    // applicationReqDTO, String profileUrl, User user) {
-    // ArtistApplications applications = new ArtistApplications();
+        application.setApplicationStatus(ApplicationStatus.APPROVED);
+        ArtistApplications saved = artistApplicationRepository.save(application);
+        return applicationsToDto(saved);
+    }
 
-    // applications.setUser(user);
-    // applications.setArtistName(applicationReqDTO.artistName());
-    // applications.setBio(applicationReqDTO.bio());
-    // applications.setApplicationStatus(ApplicationStatus.PENDING);
-    // applications.setGenre(applicationReqDTO.genre());
-    // applications.setProfileImage(profileUrl);
-    // return applications;
+    @Transactional
+    public ApplicationsResDTO rejectApplication(Long applicationId) {
+        ArtistApplications application = artistApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with ID: " + applicationId));
 
-    // }
+        application.setApplicationStatus(ApplicationStatus.REJECTED);
+        ArtistApplications saved = artistApplicationRepository.save(application);
+        return applicationsToDto(saved);
+    }
 
-    // private User dtoToUser(UserRequest userRequest) {
-    // User user = new User();
+    private ApplicationsResDTO applicationsToDto(ArtistApplications application) {
+        User user = application.getUser();
+        String imageUrl = application.getProfileImage();
+        if (imageUrl != null && !imageUrl.isBlank() && !imageUrl.startsWith("http")) {
+            imageUrl = s3Service.getFileUrl(imageUrl);
+        }
 
-    // user.setUsername(userRequest.username());
-    // user.setEmail(userRequest.email());
-    // user.setPassword(userRequest.password());
-    // return user;
+        return new ApplicationsResDTO(
+                application.getApplicationID(),
+                user != null ? user.getUsername() : null,
+                user != null ? user.getUserId() : null,
+                application.getBio(),
+                application.getGenre(),
+                imageUrl,
+                application.getArtistName(),
+                application.getApplicationStatus(),
+                application.getCreatedAt());
+    }
 
-    // }
+    private User dtoToUser(UserRequest userRequest) {
+        User user = new User();
+        user.setUsername(userRequest.username());
+        user.setEmail(userRequest.email());
+        user.setPassword(userRequest.password());
+        return user;
+    }
 
-    // private UserResponse userToDto(User user) {
-    // UserResponse userResponse = new UserResponse(user.getUserId(),
-    // user.getUsername(), user.getEmail(),
-    // user.getRole());
-
-    // return userResponse;
-
-    // }
-
-    // }
-
+    private UserResponse userToDto(User user) {
+        return new UserResponse(user.getUserId(), user.getUsername(), user.getEmail(), user.getRole());
+    }
 }

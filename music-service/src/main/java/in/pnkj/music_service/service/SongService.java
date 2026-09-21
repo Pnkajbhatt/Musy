@@ -6,12 +6,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import in.pnkj.music_service.repo.*;
-import in.pnkj.music_service.apiClient.*;
+import in.pnkj.music_service.apiClient.UserServiceClient;
 import in.pnkj.music_service.dto.SongRequest;
 import in.pnkj.music_service.dto.SongResponse;
 import in.pnkj.music_service.dto.UserDataDTO;
 import in.pnkj.music_service.entity.Song;
+import in.pnkj.music_service.repo.SongRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -34,7 +34,14 @@ public class SongService {
 
     public void deleteSong(Long songId) {
         Song song = repository.findById(songId).orElseThrow(() -> new IllegalArgumentException("Song not found"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDataDTO user = serviceClient.getUserByUsername(authentication.getName());
+        if (!song.getUserId().equals(user.userId())) {
+            throw new IllegalArgumentException("You are not authorized to delete this song");
+        }
 
+        s3Service.deleteFile(song.getSongUrl());
+        s3Service.deleteFile(song.getCoverUrl());
         repository.delete(song);
     }
 

@@ -10,6 +10,8 @@ import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "./index.css";
 import { useState, useEffect } from "react";
 import SongPage from "./components/Home/SongPage";
+import ApplyArtist from "./components/Artist/ApplyArtist";
+import AdminPanel from "./components/AdminPanel";
 import apiFetch from "./apiFetch";
 
 function App() {
@@ -132,6 +134,8 @@ function App() {
           <Route path="/browse" element={<AllSongs onPlay={handlePlaySong} />} />
           <Route path="/upload" element={<SomeUpload />} />
           <Route path="/profile" element={<Profile onPlay={handlePlaySong} />} />
+          <Route path="/apply-artist" element={<ApplyArtist />} />
+          <Route path="/admin" element={<AdminPanel />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<Navigate to="/" replace />} />

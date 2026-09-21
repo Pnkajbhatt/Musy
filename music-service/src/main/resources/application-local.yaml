@@ -1,0 +1,8 @@
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+
+app:
+  api:
+    base-url: ${APP_API_BASE_URL:http://localhost:8080}

@@ -1,63 +1,69 @@
 package in.pnkj.user_service.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import in.pnkj.user_service.entity.dto.ApiResponse;
+import in.pnkj.user_service.entity.dto.ApplicationReqDTO;
+import in.pnkj.user_service.entity.dto.ApplicationsResDTO;
 import in.pnkj.user_service.entity.dto.CreateUserRequestDTO;
 import in.pnkj.user_service.entity.dto.CreateUserResponseDTO;
 import in.pnkj.user_service.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import java.io.IOException;
 
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/users")
+    @PostMapping
     public CreateUserResponseDTO createUser(@Valid @RequestBody CreateUserRequestDTO request) {
         return userService.CreateUser(request);
     }
 
-    // @DeleteMapping("delete/user/{id}")
-    // public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long id,
-    // HttpServletRequest httpRequest) {
+    @PostMapping(value = "/artist/apply", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<ApplicationsResDTO>> applyForArtist(
+            @RequestParam("artistName") String artistName,
+            @RequestParam(value = "bio", required = false) String bio,
+            @RequestParam(value = "genre", required = false) String genre,
+            @RequestPart(value = "file", required = false) MultipartFile profileImage,
+            HttpServletRequest httpServletRequest) throws IOException {
 
-    // String deleteUser = userService.deleteUser(id);
+        ApplicationReqDTO dto = new ApplicationReqDTO(artistName, bio, genre, profileImage);
+        ApiResponse<ApplicationsResDTO> response = ApiResponse.Success(
+                userService.PromoteAsArtist(dto, profileImage),
+                "Application submitted successfully",
+                httpServletRequest.getRequestURI());
 
-    // ApiResponse<String> reponse = ApiResponse.Success(deleteUser, "User has been
-    // deleted",
-    // httpRequest.getRequestURI());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
-    // return ResponseEntity.status(HttpStatus.NO_CONTENT).body(reponse);
+    @GetMapping("/artist/status")
+    public ResponseEntity<ApiResponse<ApplicationsResDTO>> getMyApplicationStatus(
+            HttpServletRequest httpServletRequest) {
+        ApplicationsResDTO myApp = userService.getMyApplication();
+        ApiResponse<ApplicationsResDTO> response = ApiResponse.Success(
+                myApp,
+                myApp != null ? "Application status fetched" : "No application found",
+                httpServletRequest.getRequestURI());
 
-    // }
-
-    // @GetMapping("/users")
-    // public ResponseEntity<ApiResponse<List<UserResponse>>>
-    // getAllUser(HttpServletRequest httpRequest) {
-    // ApiResponse<List<UserResponse>> response =
-    // ApiResponse.Success(userService.getUsers(), "All the Users are ",
-    // httpRequest.getRequestURI());
-
-    // return ResponseEntity.status(HttpStatus.FOUND).body(response);
-    // }
-
-    // @GetMapping("/user/{id}")
-    // public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable Long
-    // id, HttpServletRequest httpRequest) {
-    // ApiResponse<UserResponse> response =
-    // ApiResponse.Success(userService.getUsers(id), "User Found",
-    // httpRequest.getRequestURI());
-    // return ResponseEntity.status(HttpStatus.FOUND).body(response);
-    // }
-
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

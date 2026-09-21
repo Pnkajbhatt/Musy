@@ -7,6 +7,7 @@ function Profile({ onPlay }) {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const [activeTab, setActiveTab] = useState("liked"); // "liked" | "history" | "uploads"
+  const [artistApp, setArtistApp] = useState(null);
 
   const [allSongs, setAllSongs] = useState([]);
   const [likedSongs, setLikedSongs] = useState([]);
@@ -19,6 +20,18 @@ function Profile({ onPlay }) {
   useEffect(() => {
     setCurrentUser(getCurrentUser());
   }, []);
+
+  // Fetch artist application status
+  useEffect(() => {
+    if (isLoggedIn) {
+      apiFetch("users/artist/status")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.data) setArtistApp(data.data);
+        })
+        .catch(() => {});
+    }
+  }, [isLoggedIn]);
 
   // Fetch all songs, liked songs, and play history
   useEffect(() => {
@@ -140,6 +153,17 @@ function Profile({ onPlay }) {
   const username = currentUser?.username || "Musy Listener";
   const userInitial = username.charAt(0).toUpperCase();
 
+  const isAdmin =
+    currentUser?.roles?.some((r) => r === "ROLE_ADMIN" || r === "ADMIN") ||
+    localStorage.getItem("role") === "ROLE_ADMIN" ||
+    localStorage.getItem("role") === "ADMIN";
+
+  const isArtist =
+    currentUser?.roles?.some((r) => r === "ROLE_ARTIST" || r === "ARTIST") ||
+    artistApp?.status === "APPROVED";
+
+  const isPending = artistApp?.status === "PENDING";
+
   return (
     <div className="w-full max-w-5xl space-y-8">
       {/* Profile Header Card */}
@@ -162,23 +186,68 @@ function Profile({ onPlay }) {
                 <h1 className="font-display text-2xl sm:text-3xl font-bold text-egg-50">
                   {username}
                 </h1>
-                <span className="rounded-full bg-aqua-950/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-aqua-300 uppercase border border-aqua-800/40">
-                  Verified
-                </span>
+                {isAdmin ? (
+                  <span className="rounded-full bg-blush-950/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-blush-300 uppercase border border-blush-800/40">
+                    Admin
+                  </span>
+                ) : isArtist ? (
+                  <span className="rounded-full bg-aqua-950/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-aqua-300 uppercase border border-aqua-800/40">
+                    Verified Artist
+                  </span>
+                ) : isPending ? (
+                  <span className="rounded-full bg-amber-950/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-amber-300 uppercase border border-amber-800/40">
+                    Artist Under Review
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-ink-800/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-ink-300 uppercase border border-ink-700/40">
+                    Member
+                  </span>
+                )}
               </div>
-              <p className="mt-1 text-sm text-ink-400">Musy Member · Listening Room</p>
+              <p className="mt-1 text-sm text-ink-400">
+                {isArtist
+                  ? "Creator & Musician · Listening Room"
+                  : isAdmin
+                  ? "Musy Administrator · Staff Room"
+                  : "Musy Member · Listening Room"}
+              </p>
             </div>
           </div>
 
           {/* Header Action Buttons */}
           <div className="flex flex-wrap items-center gap-3">
-            <Link
-              to="/upload"
-              className="btn-primary flex items-center gap-2 px-4 py-2.5 text-sm font-semibold shadow-lg shadow-aqua-500/20"
-            >
-              <span>+</span>
-              <span>Upload Track</span>
-            </Link>
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="rounded-xl border border-blush-800/80 bg-blush-950/70 px-4 py-2.5 text-sm font-semibold text-blush-300 hover:bg-blush-900/80 hover:text-egg-50 transition flex items-center gap-1.5"
+              >
+                <span>🛡️</span>
+                <span>Admin Panel</span>
+              </Link>
+            )}
+
+            {isArtist ? (
+              <Link
+                to="/upload"
+                className="btn-primary flex items-center gap-2 px-4 py-2.5 text-sm font-semibold shadow-lg shadow-aqua-500/20"
+              >
+                <span>+</span>
+                <span>Upload Track</span>
+              </Link>
+            ) : !isAdmin ? (
+              <Link
+                to="/apply-artist"
+                className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition flex items-center gap-1.5 ${
+                  isPending
+                    ? "border-amber-800/80 bg-amber-950/70 text-amber-300 hover:bg-amber-900/80"
+                    : "border-aqua-800/80 bg-aqua-950/70 text-aqua-300 hover:bg-aqua-900/80"
+                }`}
+              >
+                <span>{isPending ? "⏳" : "🎙️"}</span>
+                <span>{isPending ? "Application Pending" : "Apply for Artist"}</span>
+              </Link>
+            ) : null}
+
             <button
               type="button"
               onClick={handleLogout}
@@ -190,7 +259,7 @@ function Profile({ onPlay }) {
         </div>
 
         {/* Stats Strip */}
-        <div className="mt-8 grid grid-cols-3 gap-3 border-t border-ink-800/80 pt-6">
+        <div className={`mt-8 grid ${isArtist ? "grid-cols-3" : "grid-cols-2"} gap-3 border-t border-ink-800/80 pt-6`}>
           <button
             type="button"
             onClick={() => setActiveTab("liked")}
@@ -225,22 +294,24 @@ function Profile({ onPlay }) {
             </p>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("uploads")}
-            className={`rounded-2xl p-4 text-left transition ${
-              activeTab === "uploads"
-                ? "bg-ink-800/80 border border-ink-700"
-                : "bg-ink-900/40 hover:bg-ink-800/40"
-            }`}
-          >
-            <p className="text-xs font-semibold text-ink-400 uppercase tracking-wider">
-              Uploads
-            </p>
-            <p className="font-display mt-1 text-2xl sm:text-3xl font-bold text-egg-50">
-              {uploadedSongs.length}
-            </p>
-          </button>
+          {isArtist && (
+            <button
+              type="button"
+              onClick={() => setActiveTab("uploads")}
+              className={`rounded-2xl p-4 text-left transition ${
+                activeTab === "uploads"
+                  ? "bg-ink-800/80 border border-ink-700"
+                  : "bg-ink-900/40 hover:bg-ink-800/40"
+              }`}
+            >
+              <p className="text-xs font-semibold text-ink-400 uppercase tracking-wider">
+                Uploads
+              </p>
+              <p className="font-display mt-1 text-2xl sm:text-3xl font-bold text-egg-50">
+                {uploadedSongs.length}
+              </p>
+            </button>
+          )}
         </div>
       </section>
 
@@ -270,17 +341,19 @@ function Profile({ onPlay }) {
             >
               🎧 History ({historySongs.length})
             </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("uploads")}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                activeTab === "uploads"
-                  ? "bg-ink-800 text-egg-50 shadow-sm"
-                  : "text-ink-400 hover:text-egg-50"
-              }`}
-            >
-              🎵 My Uploads ({uploadedSongs.length})
-            </button>
+            {isArtist && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("uploads")}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                  activeTab === "uploads"
+                    ? "bg-ink-800 text-egg-50 shadow-sm"
+                    : "text-ink-400 hover:text-egg-50"
+                }`}
+              >
+                🎵 My Uploads ({uploadedSongs.length})
+              </button>
+            )}
           </div>
 
           {activeTab === "history" && historySongs.length > 0 && (
@@ -366,7 +439,7 @@ function Profile({ onPlay }) {
               </div>
             )}
 
-            {activeTab === "uploads" && (
+            {activeTab === "uploads" && isArtist && (
               <div>
                 {uploadedSongs.length === 0 ? (
                   <div className="glass rounded-3xl p-10 text-center">

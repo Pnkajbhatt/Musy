@@ -6,6 +6,10 @@ services:
     container_name: eureka-server
     ports:
       - "8761:8761"
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
     networks:
       - musy-network
 
@@ -18,6 +22,8 @@ services:
       - eureka-server
     env_file:
       - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
     networks:
       - musy-network
 
@@ -30,6 +36,8 @@ services:
       - eureka-server
     env_file:
       - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
     networks:
       - musy-network
 
@@ -42,6 +50,8 @@ services:
       - eureka-server
     env_file:
       - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
     networks:
       - musy-network
 
@@ -54,6 +64,8 @@ services:
       - eureka-server
     env_file:
       - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
     networks:
       - musy-network
 
@@ -66,6 +78,8 @@ services:
       - eureka-server
     env_file:
       - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
     networks:
       - musy-network
 
@@ -78,6 +92,8 @@ services:
       - eureka-server
     env_file:
       - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=ec2
     networks:
       - musy-network
 

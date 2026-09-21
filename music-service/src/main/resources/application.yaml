@@ -1,6 +1,16 @@
 spring:
+  application:
+    name: music-service
+  profiles:
+    default: local
+    group:
+      prod:
+        - ec2
   config:
-    import: "optional:file:./music-service/.env[.properties]"
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:file:../.env[.properties]"
+      - "optional:file:./music-service/.env[.properties]"
   servlet:
     multipart:
       max-file-size: 20MB
@@ -15,29 +25,21 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-  application:
-    name: music-service
 
 server:
   port: 8083
 
 eureka:
   instance:
-    hostname: localhost
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
   client:
     register-with-eureka: true
     fetch-registry: true
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+
 aws:
   s3:
     bucket: musys3-151963020801-ap-south-1-an
     region: ap-south-1
   access-key: ${AWS_ACCESS_KEY}
   secret-key: ${AWS_SECRET_KEY}
-
-app:
-  api:
-    base-url: ${APP_API_BASE_URL:https://musy-pnkj.duckdns.org}

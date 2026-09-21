@@ -1,8 +1,16 @@
 spring:
   application:
     name: like-service
+  profiles:
+    default: local
+    group:
+      prod:
+        - ec2
   config:
-    import: "optional:file:./like-service/.env[.properties]"
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:file:../.env[.properties]"
+      - "optional:file:./like-service/.env[.properties]"
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -25,5 +33,3 @@ eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/

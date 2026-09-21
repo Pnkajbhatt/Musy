@@ -1,15 +1,23 @@
 spring:
-  config:
-    import: "optional:file:./auth-service/.env[.properties]"
   application:
     name: auth-service
+  profiles:
+    default: local
+    group:
+      prod:
+        - ec2
+  config:
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:file:../.env[.properties]"
+      - "optional:file:./auth-service/.env[.properties]"
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   jwt:
     secret: ${JWT_SECRETE_KEY}
     expiration-ms: ${JWT_EXPIRE}
@@ -19,11 +27,8 @@ server:
 
 eureka:
   instance:
-    hostname: localhost
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
   client:
     register-with-eureka: true
     fetch-registry: true
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/

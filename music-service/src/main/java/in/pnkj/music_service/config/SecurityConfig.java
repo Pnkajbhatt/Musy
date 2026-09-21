@@ -23,11 +23,11 @@ public class SecurityConfig {
         return http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/song", "/api/songs", "/api/song/**", "/api/songs/**",
-                                "/api/files/**")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/song").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/song/**").authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/song", "/api/songs", "/api/song/**", "/api/songs/**", "/api/files/**").permitAll()
+                        .requestMatchers(HttpMethod.HEAD, "/api/song", "/api/songs", "/api/song/**", "/api/songs/**", "/api/files/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/song", "/api/songs").hasRole("ARTIST")
+                        .requestMatchers(HttpMethod.DELETE, "/api/song/**", "/api/songs/**").hasAnyRole("ARTIST", "ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(basic -> basic.disable())

@@ -1,8 +1,16 @@
 spring:
-  config:
-    import: "optional:file:./user-service/.env[.properties]"
   application:
     name: user-service
+  profiles:
+    default: local
+    group:
+      prod:
+        - ec2
+  config:
+    import:
+      - "optional:file:.env[.properties]"
+      - "optional:file:../.env[.properties]"
+      - "optional:file:./user-service/.env[.properties]"
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -19,11 +27,15 @@ server:
 
 eureka:
   instance:
-    hostname: localhost
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
   client:
     register-with-eureka: true
     fetch-registry: true
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+
+aws:
+  s3:
+    bucket: musys3-151963020801-ap-south-1-an
+    region: ap-south-1
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
