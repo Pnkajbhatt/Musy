@@ -57,6 +57,21 @@ services:
     networks:
       - musy-network
 
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+    networks:
+      - musy-network
+
 networks:
   musy-network:
     driver: bridge
+
+volumes:
+  caddy_data:

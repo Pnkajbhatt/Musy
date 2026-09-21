@@ -1,4 +1,5 @@
-const apiBaseUrl = `${import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "")}/api`;
+const baseUrl = import.meta.env.VITE_BACKEND_URL || "";
+const apiBaseUrl = `${baseUrl.replace(/\/$/, "")}/api`;
 
 async function apiFetch(url, options = {}) {
   const token = localStorage.getItem("token");
