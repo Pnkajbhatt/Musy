@@ -38,8 +38,8 @@ function NavBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink-800 bg-ink-950">
       <nav className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-5 py-4 sm:px-8">
-        <NavLink to="/" className="font-display mr-auto text-2xl font-bold tracking-tight text-egg-50">
-          musy<span className="text-blush-700">.</span>
+        <NavLink to="/" className="font-display mr-auto text-3xl sm:text-4xl font-extrabold tracking-tight text-egg-50 transition hover:opacity-90">
+          musy<span className="text-blush-500">.</span>
         </NavLink>
 
         <form onSubmit={handleSearch}
@@ -66,14 +66,34 @@ function NavBar() {
               {label}
             </NavLink>
           ))}
+          {isLoggedIn && (
+            <NavLink to="/profile"
+              className={({ isActive }) =>
+                `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "nav-link-active" : "text-ink-300 hover:bg-ink-800 hover:text-egg-50"}`
+              }>
+              Profile
+            </NavLink>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
           {isLoggedIn ? (
-            <button onClick={handleLogout}
-              className="rounded-xl px-3 py-2 text-sm font-semibold text-ink-300 transition hover:text-egg-50">
-              Log out
-            </button>
+            <div className="flex items-center gap-2">
+              <NavLink
+                to="/profile"
+                className="flex items-center gap-1.5 rounded-xl border border-ink-700/70 bg-ink-900/70 px-3 py-2 text-sm font-medium text-egg-50 transition hover:bg-ink-800"
+                title="View Profile"
+              >
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-aqua-500/20 text-xs font-bold text-aqua-400">
+                  👤
+                </span>
+                <span className="hidden sm:inline">My Profile</span>
+              </NavLink>
+              <button onClick={handleLogout}
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-ink-300 transition hover:text-egg-50">
+                Log out
+              </button>
+            </div>
           ) : (
             <>
               <NavLink to="/login"

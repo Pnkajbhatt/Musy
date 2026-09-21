@@ -96,9 +96,17 @@ body {
   isolation: isolate;
 }
 
-.app-shell > :not(.ambient-blob) {
+.app-shell > :not(.ambient-blob):not(.playbar-container) {
   position: relative;
   z-index: 1;
+}
+
+.playbar-container {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 50 !important;
 }
 
 .ambient-blob {

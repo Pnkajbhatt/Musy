@@ -53,7 +53,7 @@ function Home({ onPlay }) {
           <SongCard
             key={song.songId ?? song.song_id ?? song.id}
             song={song}
-            onPlay={onPlay}
+            onPlay={(s) => onPlay(s, songs)}
           />
         ))}
       </div>

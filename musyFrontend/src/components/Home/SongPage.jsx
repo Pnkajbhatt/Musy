@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import apiFetch, { resolveMediaUrl } from "../../apiFetch";
 
-function SongPage({ song, onBack }) {
+function SongPage({ song, onBack, onPlay, isPlaying = false }) {
   // Normalize songId — backend may return songId or song_id
   const songId = song?.songId ?? song?.song_id ?? song?.id;
   const coverUrl = resolveMediaUrl(song?.coverUrl ?? song?.cover_url);
@@ -81,13 +81,15 @@ function SongPage({ song, onBack }) {
             {song.streamCount ?? 0} plays · {likeCount} {likeCount === 1 ? "like" : "likes"}
           </p>
 
-          <div className="my-4">
+          <div className="my-5 flex flex-wrap items-center gap-3">
+
             {isLoggedIn ? (
               <button
+                type="button"
                 onClick={handleToggleLike}
                 disabled={likeLoading}
-                className={`px-5 py-2 text-sm rounded-xl font-semibold transition disabled:opacity-50 ${
-                  liked ? "btn-ghost" : "btn-primary"
+                className={`px-5 py-2.5 text-sm rounded-xl font-semibold transition disabled:opacity-50 ${
+                  liked ? "btn-ghost" : "bg-ink-800/80 hover:bg-ink-700 text-egg-100"
                 }`}
               >
                 {likeLoading ? "…" : liked ? "♥ Liked" : "♡ Like"}
@@ -96,15 +98,6 @@ function SongPage({ song, onBack }) {
               <p className="text-sm text-ink-400">Log in to like this track.</p>
             )}
           </div>
-
-          {/* Audio player */}
-          {songUrl && (
-            <audio
-              controls
-              src={songUrl}
-              className="mt-2 w-full rounded-md bg-transparent outline-none"
-            />
-          )}
         </div>
       </div>
     </section>

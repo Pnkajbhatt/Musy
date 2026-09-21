@@ -34,6 +34,8 @@ function Login() {
 
       const token = data.token ?? data.Token ?? data.data?.token ?? data.data?.Token;
       if (token) localStorage.setItem("token", token);
+      const username = data.username ?? data.data?.username ?? formData.username;
+      if (username) localStorage.setItem("username", username);
 
       navigate("/");
       // force navbar to re-render
