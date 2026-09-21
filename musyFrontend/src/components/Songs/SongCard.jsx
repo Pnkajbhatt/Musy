@@ -1,10 +1,12 @@
+import { resolveMediaUrl } from "../../apiFetch";
+
 function SongCard({ song, onPlay }) {
-  const coverUrl = song.coverUrl ?? song.cover_url;
-  const songUrl = song.songUrl ?? song.song_url;
+  const coverUrl = resolveMediaUrl(song.coverUrl ?? song.cover_url);
+  const songUrl = resolveMediaUrl(song.songUrl ?? song.song_url);
 
   const handlePlay = () => {
     if (!songUrl) return;
-    onPlay(song);
+    onPlay({ ...song, songUrl, coverUrl });
   };
 
   return (

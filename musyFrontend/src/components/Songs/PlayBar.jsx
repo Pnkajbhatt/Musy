@@ -1,4 +1,9 @@
+import { resolveMediaUrl } from "../../apiFetch";
+
 function PlayBar({ currentSong, onOpenSong }) {
+  const songUrl = resolveMediaUrl(currentSong?.songUrl ?? currentSong?.song_url);
+  const coverUrl = resolveMediaUrl(currentSong?.coverUrl ?? currentSong?.cover_url);
+
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-50 border-t border-ink-800 bg-ink-950 px-4 py-3 sm:px-8"
@@ -28,7 +33,7 @@ function PlayBar({ currentSong, onOpenSong }) {
         ) : (
           <div className="flex items-center gap-4">
             <img
-              src={currentSong.coverUrl ?? currentSong.cover_url}
+              src={coverUrl}
               alt={currentSong.title}
               className="h-14 w-14 shrink-0 rounded-xl object-cover"
             />
@@ -52,7 +57,7 @@ function PlayBar({ currentSong, onOpenSong }) {
             <div className="min-w-0 flex-1">
               <audio
                 controls
-                src={currentSong.songUrl ?? currentSong.song_url}
+                src={songUrl}
                 onClick={(event) => event.stopPropagation()}
                 tabIndex={0}
                 onKeyDown={(e) => {

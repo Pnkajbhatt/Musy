@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import apiFetch from "../../apiFetch";
+import apiFetch, { resolveMediaUrl } from "../../apiFetch";
 
 function SongPage({ song, onBack }) {
   // Normalize songId — backend may return songId or song_id
   const songId = song?.songId ?? song?.song_id ?? song?.id;
+  const coverUrl = resolveMediaUrl(song?.coverUrl ?? song?.cover_url);
+  const songUrl = resolveMediaUrl(song?.songUrl ?? song?.song_url);
 
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -60,9 +62,9 @@ function SongPage({ song, onBack }) {
 
       <div className="grid gap-8 sm:grid-cols-[16rem_1fr]">
         <div className="overflow-hidden rounded-3xl border border-ink-800">
-          {song.coverUrl ?? song.cover_url ? (
+          {coverUrl ? (
             <img
-              src={song.coverUrl ?? song.cover_url}
+              src={coverUrl}
               alt={`${song.title ?? "Song"} cover`}
               className="aspect-square w-full object-cover"
             />
@@ -96,10 +98,10 @@ function SongPage({ song, onBack }) {
           </div>
 
           {/* Audio player */}
-          {(song.songUrl ?? song.song_url) && (
+          {songUrl && (
             <audio
               controls
-              src={song.songUrl ?? song.song_url}
+              src={songUrl}
               className="mt-2 w-full rounded-md bg-transparent outline-none"
             />
           )}
