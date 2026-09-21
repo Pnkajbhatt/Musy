@@ -1,8 +1,10 @@
-version: "3.8"
+version: '3.8'
 
 services:
   eureka-server:
-    image: pankajbhatt/musy-eureka:latest
+    build:
+      context: ./eureka-service
+      dockerfile: Dockerfile
     container_name: eureka-server
     ports:
       - "8761:8761"
@@ -10,7 +12,9 @@ services:
       - musy-network
 
   api-gateway:
-    image: pankajbhatt/musy-api-gateway:latest
+    build:
+      context: ./api-gateway-service
+      dockerfile: Dockerfile
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -22,7 +26,9 @@ services:
       - musy-network
 
   auth-service:
-    image: pankajbhatt/musy-auth:latest
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
     container_name: auth-service
     ports:
       - "8081:8081"
@@ -34,7 +40,9 @@ services:
       - musy-network
 
   user-service:
-    image: pankajbhatt/musy-user:latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
     container_name: user-service
     ports:
       - "8082:8082"
@@ -46,7 +54,9 @@ services:
       - musy-network
 
   music-service:
-    image: pankajbhatt/musy-music:latest
+    build:
+      context: ./music-service
+      dockerfile: Dockerfile
     container_name: music-service
     ports:
       - "8083:8083"
@@ -57,21 +67,34 @@ services:
     networks:
       - musy-network
 
-  caddy:
-    image: caddy:2
-    restart: unless-stopped
+  like-service:
+    build:
+      context: ./like-service
+      dockerfile: Dockerfile
+    container_name: like-service
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
+      - "8084:8084"
+    depends_on:
+      - eureka-server
+    env_file:
+      - .env
+    networks:
+      - musy-network
+
+  history-service:
+    build:
+      context: ./history-service
+      dockerfile: Dockerfile
+    container_name: history-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - eureka-server
+    env_file:
+      - .env
     networks:
       - musy-network
 
 networks:
   musy-network:
     driver: bridge
-
-volumes:
-  caddy_data:
