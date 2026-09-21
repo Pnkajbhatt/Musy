@@ -5,58 +5,59 @@ spring:
     max-in-memory-size: 20MB
   cloud:
     gateway:
-      globalcors:
-        cors-configurations:
-          "[/**]":
-            allowedOriginPatterns:
-              - "https://musy-five.vercel.app"
-              - "https://musy-git-main-pankaj-bhatt-s-projects.vercel.app"
-              - "https://*.vercel.app"
-              - "http://localhost:5173"
-              - "http://localhost:3000"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - PATCH
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: true
-            maxAge: 3600
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
-      httpclient:
-        connect-timeout: 30000
-        response-timeout: 120s
-      routes:
-        - id: user-service
-          uri: http://user-service:8082
-          predicates:
-            - Path=/api/users/**
-        - id: auth-service
-          uri: http://auth-service:8081
-          predicates:
-            - Path=/api/auth/**
-        - id: music-service
-          uri: http://music-service:8083
-          predicates:
-            - Path=/api/song,/api/song/**,/api/songs,/api/songs/**,/api/files/**
-        - id: like-service
-          uri: http://like-service:8084
-          predicates:
-            - Path=/api/likes/**
-        - id: history-service
-          uri: http://history-service:8085
-          predicates:
-            - Path=/api/history/**
+      server:
+        webflux:
+          globalcors:
+            cors-configurations:
+              "[/**]":
+                allowedOriginPatterns:
+                  - "https://musy-five.vercel.app"
+                  - "https://musy-git-main-pankaj-bhatt-s-projects.vercel.app"
+                  - "https://*.vercel.app"
+                  - "http://localhost:5173"
+                  - "http://localhost:3000"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - PATCH
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
+                maxAge: 3600
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+          httpclient:
+            connect-timeout: 30000
+            response-timeout: 120s
+          routes:
+            - id: user-service
+              uri: http://user-service:8082
+              predicates:
+                - Path=/api/users/**
+            - id: auth-service
+              uri: http://auth-service:8081
+              predicates:
+                - Path=/api/auth/**
+            - id: music-service
+              uri: http://music-service:8083
+              predicates:
+                - Path=/api/song,/api/song/**,/api/songs,/api/songs/**,/api/files/**
+            - id: like-service
+              uri: http://like-service:8084
+              predicates:
+                - Path=/api/likes/**
+            - id: history-service
+              uri: http://history-service:8085
+              predicates:
+                - Path=/api/history/**
 
 server:
   port: 8080
 
 eureka:
   instance:
-    hostname: localhost
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
   client:
@@ -70,10 +71,8 @@ management:
     web:
       exposure:
         include: "*"
-  endpoint:
-    gateway:
-      enabled: true
 
 logging:
   level:
     org.springframework.cloud.gateway: TRACE
+    reactor.netty.http.client: DEBUG
