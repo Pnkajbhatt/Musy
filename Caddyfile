@@ -1,0 +1,3 @@
+musy-pnkj.duckdns.org {
+    reverse_proxy api-gateway:8080
+}

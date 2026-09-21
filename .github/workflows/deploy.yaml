@@ -189,5 +189,8 @@ jobs:
               docker compose up -d --no-deps history-service
             fi
 
+            # Ensure Caddy reverse proxy is running with HTTPS
+            docker compose up -d caddy
+
             echo "✅ Deployment complete!"
             docker compose ps

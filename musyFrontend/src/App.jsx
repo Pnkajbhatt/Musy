@@ -60,7 +60,7 @@ function App() {
               )
             }
           />
-          <Route path="/browse" element={<AllSongs />} />
+          <Route path="/browse" element={<AllSongs onPlay={setCurrentSong} />} />
           <Route path="/upload" element={<SomeUpload />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
