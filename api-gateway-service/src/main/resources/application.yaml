@@ -27,7 +27,7 @@ spring:
                 allowCredentials: true
                 maxAge: 3600
           default-filters:
-            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+            - DedupeResponseHeader=Access-Control-Allow-Origin  Access-Control-Allow-Credentials, RETAIN_FIRST
           httpclient:
             connect-timeout: 30000
             response-timeout: 120s
