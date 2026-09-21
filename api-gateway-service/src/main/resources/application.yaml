@@ -31,23 +31,23 @@ spring:
         response-timeout: 120s
       routes:
         - id: user-service
-          uri: lb://user-service
+          uri: http://user-service:8082
           predicates:
             - Path=/api/users/**
         - id: auth-service
-          uri: lb://auth-service
+          uri: http://auth-service:8081
           predicates:
             - Path=/api/auth/**
         - id: music-service
-          uri: lb://music-service
+          uri: http://music-service:8083
           predicates:
             - Path=/api/song,/api/song/**,/api/songs,/api/songs/**,/api/files/**
         - id: like-service
-          uri: lb://like-service
+          uri: http://like-service:8084
           predicates:
             - Path=/api/likes/**
         - id: history-service
-          uri: lb://history-service
+          uri: http://history-service:8085
           predicates:
             - Path=/api/history/**
 
@@ -64,3 +64,16 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
