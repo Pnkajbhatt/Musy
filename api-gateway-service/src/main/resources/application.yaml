@@ -7,8 +7,13 @@ spring:
     gateway:
       globalcors:
         cors-configurations:
-          '[/**]':
-            allowedOrigins: ${CORS_ALLOWED_ORIGINS:https://musy-five.vercel.app,http://localhost:5173}
+          "[/**]":
+            allowedOriginPatterns:
+              - "https://musy-five.vercel.app"
+              - "https://musy-git-main-pankaj-bhatt-s-projects.vercel.app"
+              - "https://*.vercel.app"
+              - "http://localhost:5173"
+              - "http://localhost:3000"
             allowedMethods:
               - GET
               - POST
@@ -16,8 +21,9 @@ spring:
               - DELETE
               - PATCH
               - OPTIONS
-            allowedHeaders: '*'
+            allowedHeaders: "*"
             allowCredentials: true
+            maxAge: 3600
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
       httpclient:
