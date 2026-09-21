@@ -1,3 +1,0 @@
-13-204-43-55.sslip.io {
-    reverse_proxy api-gateway:8080
-}

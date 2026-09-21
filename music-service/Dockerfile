@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Copy maven executable to the image
 COPY mvnw .
+RUN chmod +x mvnw && sed -i 's/\r$//' mvnw
 COPY .mvn .mvn
 
 # Copy the pom.xml file
@@ -30,3 +31,5 @@ EXPOSE 8083
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+
