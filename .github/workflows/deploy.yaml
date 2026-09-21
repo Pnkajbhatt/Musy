@@ -1,0 +1,193 @@
+name: CI/CD — Build & Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # ──────────────────────────────────────────────
+  # 1. DETECT WHICH SERVICES CHANGED
+  # ──────────────────────────────────────────────
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      eureka:   ${{ steps.filter.outputs.eureka }}
+      gateway:  ${{ steps.filter.outputs.gateway }}
+      auth:     ${{ steps.filter.outputs.auth }}
+      user:     ${{ steps.filter.outputs.user }}
+      music:    ${{ steps.filter.outputs.music }}
+      like:     ${{ steps.filter.outputs.like }}
+      history:  ${{ steps.filter.outputs.history }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            eureka:
+              - 'eureka-service/**'
+            gateway:
+              - 'api-gateway-service/**'
+            auth:
+              - 'auth-service/**'
+            user:
+              - 'user-service/**'
+            music:
+              - 'music-service/**'
+            like:
+              - 'like-service/**'
+            history:
+              - 'history-service/**'
+
+  # ──────────────────────────────────────────────
+  # 2. BUILD & PUSH CHANGED SERVICES TO DOCKER HUB
+  # ──────────────────────────────────────────────
+  build:
+    needs: detect
+    runs-on: ubuntu-latest
+    # Only run if at least one service changed
+    if: |
+      needs.detect.outputs.eureka  == 'true' ||
+      needs.detect.outputs.gateway == 'true' ||
+      needs.detect.outputs.auth    == 'true' ||
+      needs.detect.outputs.user    == 'true' ||
+      needs.detect.outputs.music   == 'true' ||
+      needs.detect.outputs.like    == 'true' ||
+      needs.detect.outputs.history == 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push eureka-service
+        if: needs.detect.outputs.eureka == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./eureka-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-eureka:latest
+
+      - name: Build & Push api-gateway-service
+        if: needs.detect.outputs.gateway == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./api-gateway-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-api-gateway:latest
+
+      - name: Build & Push auth-service
+        if: needs.detect.outputs.auth == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./auth-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-auth:latest
+
+      - name: Build & Push user-service
+        if: needs.detect.outputs.user == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./user-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-user:latest
+
+      - name: Build & Push music-service
+        if: needs.detect.outputs.music == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./music-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-music:latest
+
+      - name: Build & Push like-service
+        if: needs.detect.outputs.like == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./like-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-like:latest
+
+      - name: Build & Push history-service
+        if: needs.detect.outputs.history == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./history-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-history:latest
+
+  # ──────────────────────────────────────────────
+  # 3. DEPLOY ONLY CHANGED SERVICES TO EC2
+  # ──────────────────────────────────────────────
+  deploy:
+    needs: [detect, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH & Deploy changed services
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key:      ${{ secrets.EC2_SSH_KEY }}
+          envs:     DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,DEPLOY_EUREKA,DEPLOY_GATEWAY,DEPLOY_AUTH,DEPLOY_USER,DEPLOY_MUSIC,DEPLOY_LIKE,DEPLOY_HISTORY
+          script: |
+            set -e
+            cd ~/Musy
+
+            echo "Pulling latest code..."
+            git pull origin main
+
+            echo "Logging into Docker Hub..."
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            # Pull & restart only changed services
+            if [ "${{ needs.detect.outputs.eureka }}" = "true" ]; then
+              echo "▶ Deploying eureka-server..."
+              docker compose pull eureka-server
+              docker compose up -d --no-deps eureka-server
+            fi
+
+            if [ "${{ needs.detect.outputs.gateway }}" = "true" ]; then
+              echo "▶ Deploying api-gateway..."
+              docker compose pull api-gateway
+              docker compose up -d --no-deps api-gateway
+            fi
+
+            if [ "${{ needs.detect.outputs.auth }}" = "true" ]; then
+              echo "▶ Deploying auth-service..."
+              docker compose pull auth-service
+              docker compose up -d --no-deps auth-service
+            fi
+
+            if [ "${{ needs.detect.outputs.user }}" = "true" ]; then
+              echo "▶ Deploying user-service..."
+              docker compose pull user-service
+              docker compose up -d --no-deps user-service
+            fi
+
+            if [ "${{ needs.detect.outputs.music }}" = "true" ]; then
+              echo "▶ Deploying music-service..."
+              docker compose pull music-service
+              docker compose up -d --no-deps music-service
+            fi
+
+            if [ "${{ needs.detect.outputs.like }}" = "true" ]; then
+              echo "▶ Deploying like-service..."
+              docker compose pull like-service
+              docker compose up -d --no-deps like-service
+            fi
+
+            if [ "${{ needs.detect.outputs.history }}" = "true" ]; then
+              echo "▶ Deploying history-service..."
+              docker compose pull history-service
+              docker compose up -d --no-deps history-service
+            fi
+
+            echo "✅ Deployment complete!"
+            docker compose ps

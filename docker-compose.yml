@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   eureka-server:
-    build:
-      context: ./eureka-service
-      dockerfile: Dockerfile
+    image: pankajbhatt/musy-eureka:latest
     container_name: eureka-server
     ports:
       - "8761:8761"
@@ -12,9 +10,7 @@ services:
       - musy-network
 
   api-gateway:
-    build:
-      context: ./api-gateway-service
-      dockerfile: Dockerfile
+    image: pankajbhatt/musy-api-gateway:latest
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -26,9 +22,7 @@ services:
       - musy-network
 
   auth-service:
-    build:
-      context: ./auth-service
-      dockerfile: Dockerfile
+    image: pankajbhatt/musy-auth:latest
     container_name: auth-service
     ports:
       - "8081:8081"
@@ -40,9 +34,7 @@ services:
       - musy-network
 
   user-service:
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
+    image: pankajbhatt/musy-user:latest
     container_name: user-service
     ports:
       - "8082:8082"
@@ -54,9 +46,7 @@ services:
       - musy-network
 
   music-service:
-    build:
-      context: ./music-service
-      dockerfile: Dockerfile
+    image: pankajbhatt/musy-music:latest
     container_name: music-service
     ports:
       - "8083:8083"
@@ -68,9 +58,7 @@ services:
       - musy-network
 
   like-service:
-    build:
-      context: ./like-service
-      dockerfile: Dockerfile
+    image: pankajbhatt/musy-like:latest
     container_name: like-service
     ports:
       - "8084:8084"
@@ -82,9 +70,7 @@ services:
       - musy-network
 
   history-service:
-    build:
-      context: ./history-service
-      dockerfile: Dockerfile
+    image: pankajbhatt/musy-history:latest
     container_name: history-service
     ports:
       - "8085:8085"

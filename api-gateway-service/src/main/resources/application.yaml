@@ -36,6 +36,14 @@ spring:
           uri: lb://music-service
           predicates:
             - Path=/api/song,/api/song/**,/api/songs,/api/songs/**,/api/files/**
+        - id: like-service
+          uri: lb://like-service
+          predicates:
+            - Path=/api/likes/**
+        - id: history-service
+          uri: lb://history-service
+          predicates:
+            - Path=/api/history/**
 
 server:
   port: 8080
