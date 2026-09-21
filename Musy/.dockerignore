@@ -1,9 +1,0 @@
-
-.git/
-.gitignore
-.idea/
-.vscode/
-*.iml
-.env
-application-local.properties
-README.md
