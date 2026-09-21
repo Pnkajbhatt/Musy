@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import in.pnkj.music_service.config.S3Config;
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -25,7 +27,7 @@ public class S3Service {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    @Value("${app.api.base-url:http://ec2-13-201-80-234.ap-south-1.compute.amazonaws.com:8080}")
+    @Value("${app.api.base-url:https://musy-pnkj.duckdns.org}")
     private String apiBaseUrl;
 
     public String getFileUrl(String fileName) {
@@ -82,18 +84,23 @@ public class S3Service {
         return fileName;
     }
 
-    public InputStream Download(String fileName) throws IOException {
+    public ResponseInputStream<GetObjectResponse> downloadStream(String fileName, String range) throws IOException {
         if (fileName == null || fileName.isBlank()) {
             throw new IOException("S3 file key cannot be blank");
         }
 
-        System.out.println("BUCKET: [" + bucketName + "]");
-        System.out.println("KEY: [" + fileName + "]");
+        GetObjectRequest.Builder reqBuilder = GetObjectRequest.builder()
+                .bucket(bucketName).key(fileName);
 
-        GetObjectRequest req = GetObjectRequest.builder()
-                .bucket(bucketName).key(fileName).build();
+        if (range != null && !range.isBlank()) {
+            reqBuilder.range(range);
+        }
 
-        return s3Config.s3Client().getObject(req);
+        return s3Config.s3Client().getObject(reqBuilder.build());
+    }
+
+    public InputStream Download(String fileName) throws IOException {
+        return downloadStream(fileName, null);
     }
 
     private boolean isSupportedAudio(String fileName) {

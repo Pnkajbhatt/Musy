@@ -37,3 +37,7 @@ aws:
     region: ap-south-1
   access-key: ${AWS_ACCESS_KEY}
   secret-key: ${AWS_SECRET_KEY}
+
+app:
+  api:
+    base-url: ${APP_API_BASE_URL:https://musy-pnkj.duckdns.org}

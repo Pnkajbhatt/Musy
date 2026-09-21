@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/song", "/api/songs", "/api/song/**", "/api/songs/**",
-                                "/api/files/play")
+                                "/api/files/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/song").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/song/**").authenticated()
