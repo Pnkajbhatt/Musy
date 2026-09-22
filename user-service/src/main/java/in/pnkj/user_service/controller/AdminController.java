@@ -13,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 import in.pnkj.user_service.entity.dto.ApiResponse;
 import in.pnkj.user_service.entity.dto.ApplicationReqDTO;
 import in.pnkj.user_service.entity.dto.ApplicationsResDTO;
+import in.pnkj.user_service.entity.dto.AdminStatsDTO;
+import in.pnkj.user_service.entity.dto.ArtistDetailDTO;
+import in.pnkj.user_service.entity.dto.UserSummaryDTO;
 import in.pnkj.user_service.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +83,33 @@ public class AdminController {
                 userService.rejectApplication(id),
                 "Application rejected",
                 httpServletRequest.getRequestURI());
-
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<AdminStatsDTO>> getAdminStats(HttpServletRequest request) {
+        ApiResponse<AdminStatsDTO> response = ApiResponse.Success(
+                userService.getAdminStats(),
+                "Admin statistics",
+                request.getRequestURI());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<List<UserSummaryDTO>>> getAllUsers(HttpServletRequest request) {
+        ApiResponse<List<UserSummaryDTO>> response = ApiResponse.Success(
+                userService.getAllUsers(),
+                "All registered users",
+                request.getRequestURI());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/artists")
+    public ResponseEntity<ApiResponse<List<ArtistDetailDTO>>> getAllArtists(HttpServletRequest request) {
+        ApiResponse<List<ArtistDetailDTO>> response = ApiResponse.Success(
+                userService.getAllArtists(),
+                "All registered artists",
+                request.getRequestURI());
+        return ResponseEntity.ok(response);
     }
 }

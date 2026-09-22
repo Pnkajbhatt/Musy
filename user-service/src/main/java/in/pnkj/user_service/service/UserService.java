@@ -25,6 +25,9 @@ import in.pnkj.user_service.entity.dto.ApplicationsResDTO;
 import in.pnkj.user_service.entity.dto.CreateUserResponseDTO;
 import in.pnkj.user_service.entity.dto.UserRequest;
 import in.pnkj.user_service.entity.dto.UserResponse;
+import in.pnkj.user_service.entity.dto.UserSummaryDTO;
+import in.pnkj.user_service.entity.dto.ArtistDetailDTO;
+import in.pnkj.user_service.entity.dto.AdminStatsDTO;
 import in.pnkj.user_service.exceptions.DuplicateResourceException;
 import in.pnkj.user_service.exceptions.ResourceNotFoundException;
 import in.pnkj.user_service.repo.RoleRepository;
@@ -205,5 +208,46 @@ public class UserService {
 
     private UserResponse userToDto(User user) {
         return new UserResponse(user.getUserId(), user.getUsername(), user.getEmail(), user.getRole());
+    }
+
+    public List<UserSummaryDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(u -> new UserSummaryDTO(
+                        u.getUserId(),
+                        u.getUsername(),
+                        u.getEmail(),
+                        u.getRole() != null && u.getRole().getName() != null ? u.getRole().getName().name() : "USER",
+                        u.getCreatedAt()))
+                .toList();
+    }
+
+    public List<ArtistDetailDTO> getAllArtists() {
+        List<User> artists = userRepository.findByRole_Name(RoleType.ARTIST);
+        return artists.stream().map(artist -> {
+            Optional<ArtistApplications> app = artistApplicationRepository.findTopByUserOrderByCreatedAtDesc(artist);
+            String artistName = app.map(ArtistApplications::getArtistName).orElse(artist.getUsername());
+            String bio = app.map(ArtistApplications::getBio).orElse(null);
+            String genre = app.map(ArtistApplications::getGenre).orElse(null);
+            String profileImage = app.map(ArtistApplications::getProfileImage).orElse(null);
+            if (profileImage != null && !profileImage.isBlank() && !profileImage.startsWith("http")) {
+                profileImage = s3Service.getFileUrl(profileImage);
+            }
+            return new ArtistDetailDTO(
+                    artist.getUserId(),
+                    artist.getUsername(),
+                    artist.getEmail(),
+                    artistName,
+                    bio,
+                    genre,
+                    profileImage);
+        }).toList();
+    }
+
+    public AdminStatsDTO getAdminStats() {
+        long totalUsers = userRepository.count();
+        long totalArtists = userRepository.countByRole_Name(RoleType.ARTIST);
+        long totalListeners = userRepository.countByRole_Name(RoleType.USER);
+        long pending = artistApplicationRepository.findByApplicationStatus(ApplicationStatus.PENDING).size();
+        return new AdminStatsDTO(totalUsers, totalArtists, totalListeners, pending);
     }
 }

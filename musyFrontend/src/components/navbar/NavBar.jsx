@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../../apiFetch";
+import apiFetch, { getCurrentUser, resolveMediaUrl } from "../../apiFetch";
 
 function NavBar() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
+  const [avatarUrl, setAvatarUrl] = useState(localStorage.getItem("user_avatar") || null);
 
   // Re-check auth state when token changes (login/logout)
   useEffect(() => {
     const sync = () => {
       setIsLoggedIn(!!localStorage.getItem("token"));
       setCurrentUser(getCurrentUser());
+      setAvatarUrl(localStorage.getItem("user_avatar") || null);
     };
     window.addEventListener("auth-change", sync);
     window.addEventListener("storage", sync);
@@ -21,6 +23,24 @@ function NavBar() {
       window.removeEventListener("storage", sync);
     };
   }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      apiFetch("users/artist/status")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.data?.imageUrl) {
+            const resolved = resolveMediaUrl(data.data.imageUrl);
+            setAvatarUrl(resolved);
+            localStorage.setItem("user_avatar", resolved);
+          }
+        })
+        .catch(() => {});
+    } else {
+      setAvatarUrl(null);
+      localStorage.removeItem("user_avatar");
+    }
+  }, [isLoggedIn]);
 
   const isAdmin =
     currentUser?.roles?.some((r) => r === "ROLE_ADMIN" || r === "ADMIN") ||
@@ -81,61 +101,47 @@ function NavBar() {
               {label}
             </NavLink>
           ))}
-          {isLoggedIn && (
-            <NavLink to="/profile"
-              className={({ isActive }) =>
-                `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "nav-link-active" : "text-ink-300 hover:bg-ink-800 hover:text-egg-50"}`
-              }>
-              Profile
-            </NavLink>
-          )}
-          {isAdmin ? (
+          {isAdmin && (
             <NavLink to="/admin"
               className={({ isActive }) =>
                 `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "bg-blush-950 text-blush-300 border border-blush-800/60" : "text-blush-400 hover:bg-ink-800 hover:text-egg-50"}`
               }>
-              Admin
+              Dashboard
             </NavLink>
-          ) : isLoggedIn ? (
-            <NavLink to="/apply-artist"
-              className={({ isActive }) =>
-                `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "nav-link-active" : "text-ink-300 hover:bg-ink-800 hover:text-egg-50"}`
-              }>
-              Apply Artist
-            </NavLink>
-          ) : null}
+          )}
         </div>
 
         <div className="flex items-center gap-2">
-          {isLoggedIn ? (
-            <div className="flex items-center gap-2">
-              <NavLink
-                to="/profile"
-                className="flex items-center gap-1.5 rounded-xl border border-ink-700/70 bg-ink-900/70 px-3 py-2 text-sm font-medium text-egg-50 transition hover:bg-ink-800"
-                title="View Profile"
-              >
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-aqua-500/20 text-xs font-bold text-aqua-400">
-                  👤
+          {!isAdmin && (
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                `grid h-10 w-10 place-items-center rounded-full border overflow-hidden transition ${
+                  isActive
+                    ? "border-aqua-400 bg-aqua-950 text-aqua-300 ring-2 ring-aqua-500/30 shadow-sm"
+                    : "border-ink-700/80 bg-ink-900/80 text-ink-300 hover:border-aqua-500/50 hover:text-egg-50"
+                }`
+              }
+              title={isLoggedIn ? currentUser?.username || "My Profile" : "Profile / Sign In"}
+            >
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                  onError={() => {
+                    setAvatarUrl(null);
+                    localStorage.removeItem("user_avatar");
+                  }}
+                />
+              ) : isLoggedIn ? (
+                <span className="font-semibold text-sm text-aqua-300">
+                  {currentUser?.username?.[0]?.toUpperCase() || "👤"}
                 </span>
-                <span className="hidden sm:inline">My Profile</span>
-              </NavLink>
-              <button onClick={handleLogout}
-                className="rounded-xl px-3 py-2 text-sm font-semibold text-ink-300 transition hover:text-egg-50">
-                Log out
-              </button>
-            </div>
-          ) : (
-            <>
-              <NavLink to="/login"
-                className={({ isActive }) =>
-                  `rounded-xl px-3 py-2 text-sm font-semibold transition ${isActive ? "text-egg-50" : "text-ink-300 hover:text-egg-50"}`
-                }>
-                Log in
-              </NavLink>
-              <NavLink to="/register" className="btn-primary px-3 py-2 text-sm">
-                Sign up
-              </NavLink>
-            </>
+              ) : (
+                <span className="text-base">👤</span>
+              )}
+            </NavLink>
           )}
         </div>
       </nav>

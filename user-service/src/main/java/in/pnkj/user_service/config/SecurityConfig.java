@@ -35,6 +35,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/**", "/internal/users/**").permitAll()
                         .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form.disable())
                 .build();
     }
 }

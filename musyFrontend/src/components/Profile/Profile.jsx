@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import apiFetch, { getCurrentUser } from "../../apiFetch";
+import { Link, useNavigate, Navigate } from "react-router-dom";
+import apiFetch, { getCurrentUser, resolveMediaUrl } from "../../apiFetch";
 import SongCard from "../Songs/SongCard";
 
 function Profile({ onPlay }) {
@@ -27,7 +27,14 @@ function Profile({ onPlay }) {
       apiFetch("users/artist/status")
         .then((r) => (r.ok ? r.json() : null))
         .then((data) => {
-          if (data?.data) setArtistApp(data.data);
+          if (data?.data) {
+            setArtistApp(data.data);
+            if (data.data.imageUrl) {
+              const resolved = resolveMediaUrl(data.data.imageUrl);
+              localStorage.setItem("user_avatar", resolved);
+              window.dispatchEvent(new Event("auth-change"));
+            }
+          }
         })
         .catch(() => {});
     }
@@ -158,6 +165,10 @@ function Profile({ onPlay }) {
     localStorage.getItem("role") === "ROLE_ADMIN" ||
     localStorage.getItem("role") === "ADMIN";
 
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+
   const isArtist =
     currentUser?.roles?.some((r) => r === "ROLE_ARTIST" || r === "ARTIST") ||
     artistApp?.status === "APPROVED";
@@ -172,11 +183,22 @@ function Profile({ onPlay }) {
           <div className="flex items-center gap-5">
             {/* Avatar */}
             <div className="relative">
-              <div className="grid h-20 w-20 sm:h-24 sm:w-24 place-items-center rounded-3xl bg-gradient-to-tr from-aqua-500/20 via-ink-800 to-blush-500/20 border border-ink-700/80 shadow-inner">
-                <span className="font-display text-4xl sm:text-5xl font-bold text-egg-50">
-                  {userInitial}
-                </span>
-              </div>
+              {resolveMediaUrl(artistApp?.imageUrl || localStorage.getItem("user_avatar")) ? (
+                <img
+                  src={resolveMediaUrl(artistApp?.imageUrl || localStorage.getItem("user_avatar"))}
+                  alt={username}
+                  className="h-20 w-20 sm:h-24 sm:w-24 rounded-3xl object-cover border border-ink-700/80 shadow-lg"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              ) : (
+                <div className="grid h-20 w-20 sm:h-24 sm:w-24 place-items-center rounded-3xl bg-gradient-to-tr from-aqua-500/20 via-ink-800 to-blush-500/20 border border-ink-700/80 shadow-inner">
+                  <span className="font-display text-4xl sm:text-5xl font-bold text-egg-50">
+                    {userInitial}
+                  </span>
+                </div>
+              )}
               <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-aqua-400 border-2 border-ink-950" />
             </div>
 

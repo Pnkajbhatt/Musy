@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import apiFetch, { resolveMediaUrl } from "../../apiFetch";
+import apiFetch, { getCurrentUser, resolveMediaUrl } from "../../apiFetch";
 
 function SongPage({ song, onBack, onPlay, isPlaying = false }) {
   // Normalize songId — backend may return songId or song_id
@@ -12,6 +12,12 @@ function SongPage({ song, onBack, onPlay, isPlaying = false }) {
   const [likeLoading, setLikeLoading] = useState(false);
   const isLoggedIn = !!localStorage.getItem("token");
 
+  const currentUser = getCurrentUser();
+  const isAdmin =
+    currentUser?.roles?.some((r) => r === "ROLE_ADMIN" || r === "ADMIN") ||
+    localStorage.getItem("role") === "ROLE_ADMIN" ||
+    localStorage.getItem("role") === "ADMIN";
+
   // Fetch like status and count on mount
   useEffect(() => {
     if (!songId) return;
@@ -22,19 +28,19 @@ function SongPage({ song, onBack, onPlay, isPlaying = false }) {
       .then((data) => setLikeCount(data.count ?? 0))
       .catch(() => {});
 
-    // Fetch personal like status only if logged in
-    if (isLoggedIn) {
+    // Fetch personal like status only if logged in and not admin
+    if (isLoggedIn && !isAdmin) {
       apiFetch(`likes/${songId}/status`)
         .then((r) => r.ok ? r.json() : { liked: false })
         .then((data) => setLiked(data.liked ?? false))
         .catch(() => {});
     }
 
-    // Record this song play in history (fire and forget)
-    if (isLoggedIn) {
+    // Record this song play in history (fire and forget) - non-admin listeners only
+    if (isLoggedIn && !isAdmin) {
       apiFetch(`history/${songId}`, { method: "POST" }).catch(() => {});
     }
-  }, [songId, isLoggedIn]);
+  }, [songId, isLoggedIn, isAdmin]);
 
   const handleToggleLike = async () => {
     if (!isLoggedIn || !songId || likeLoading) return;
@@ -82,8 +88,7 @@ function SongPage({ song, onBack, onPlay, isPlaying = false }) {
           </p>
 
           <div className="my-5 flex flex-wrap items-center gap-3">
-
-            {isLoggedIn ? (
+            {isLoggedIn && !isAdmin ? (
               <button
                 type="button"
                 onClick={handleToggleLike}
@@ -94,9 +99,9 @@ function SongPage({ song, onBack, onPlay, isPlaying = false }) {
               >
                 {likeLoading ? "…" : liked ? "♥ Liked" : "♡ Like"}
               </button>
-            ) : (
+            ) : !isLoggedIn ? (
               <p className="text-sm text-ink-400">Log in to like this track.</p>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

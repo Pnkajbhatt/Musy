@@ -5,6 +5,20 @@ export function resolveMediaUrl(url) {
   if (!url) return "";
   const backendBase = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/$/, "");
 
+  // If it's a raw S3 key (e.g. profile/..., Cover/..., Audio/...)
+  if (
+    url.startsWith("profile/") ||
+    url.startsWith("Cover/") ||
+    url.startsWith("Audio/") ||
+    url.startsWith("profile%2F") ||
+    url.startsWith("Cover%2F") ||
+    url.startsWith("Audio%2F")
+  ) {
+    return backendBase
+      ? `${backendBase}/api/files/play?fileName=${encodeURIComponent(url)}`
+      : `/api/files/play?fileName=${encodeURIComponent(url)}`;
+  }
+
   // If it's a relative path starting with /api/ or api/
   if (url.startsWith("/api/") || url.startsWith("api/")) {
     return backendBase ? `${backendBase}/${url.replace(/^\//, "")}` : url;

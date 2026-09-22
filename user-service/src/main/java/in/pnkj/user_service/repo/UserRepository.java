@@ -2,8 +2,10 @@ package in.pnkj.user_service.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import in.pnkj.user_service.entity.RoleType;
 import in.pnkj.user_service.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -12,4 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
+
+    long countByRole_Name(RoleType roleType);
+
+    List<User> findByRole_Name(RoleType roleType);
 }

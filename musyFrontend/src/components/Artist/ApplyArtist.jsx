@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import apiFetch, { getCurrentUser } from "../../apiFetch";
+import apiFetch, { getCurrentUser, resolveMediaUrl } from "../../apiFetch";
 
 function ApplyArtist() {
   const navigate = useNavigate();
@@ -212,9 +212,9 @@ function ApplyArtist() {
             {application.imageUrl && (
               <div className="pt-2 border-t border-ink-800/80 flex items-center gap-3">
                 <img
-                  src={application.imageUrl}
+                  src={resolveMediaUrl(application.imageUrl)}
                   alt={application.artistName}
-                  className="h-12 w-12 rounded-xl object-cover border border-ink-700"
+                  className="h-12 w-12 rounded-xl object-cover border border-ink-700 shadow-sm"
                 />
                 <span className="text-xs text-ink-400">Uploaded Profile Photo</span>
               </div>
