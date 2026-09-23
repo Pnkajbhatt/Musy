@@ -58,7 +58,7 @@ public class SongController {
         }
 
         @GetMapping("/song/{id}")
-        public ResponseEntity<ApiResponseSONG<SongResponse>> findsong(@PathVariable Long songId,
+        public ResponseEntity<ApiResponseSONG<SongResponse>> findsong(@PathVariable("id") Long songId,
                         HttpServletRequest httpServletRequest) {
                 ApiResponseSONG<SongResponse> response = ApiResponseSONG.success(service.findSong(songId), "User",
                                 httpServletRequest.getRequestURI());

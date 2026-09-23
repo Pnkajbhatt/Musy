@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import apiFetch from "../../apiFetch";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import apiFetch, { getCurrentUser } from "../../apiFetch";
 
 function Login() {
   const [formData, setFormdata] = useState({ username: "", password: "" });
@@ -33,7 +33,13 @@ function Login() {
       if (!response.ok) throw new Error(data.message || `Login failed (${response.status})`);
 
       const token = data.token ?? data.Token ?? data.data?.token ?? data.data?.Token;
-      if (token) localStorage.setItem("token", token);
+      if (token) {
+        localStorage.setItem("token", token);
+        const user = getCurrentUser();
+        if (user?.roles?.[0]) {
+          localStorage.setItem("role", user.roles[0]);
+        }
+      }
       const username = data.username ?? data.data?.username ?? formData.username;
       if (username) localStorage.setItem("username", username);
 

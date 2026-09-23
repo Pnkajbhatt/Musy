@@ -31,6 +31,12 @@ public class JwtUtil {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return claims.get("userId", Long.class);
+        Object val = claims.get("userId");
+        if (val instanceof Number n) {
+            return n.longValue();
+        } else if (val != null) {
+            return Long.parseLong(val.toString());
+        }
+        return null;
     }
 }

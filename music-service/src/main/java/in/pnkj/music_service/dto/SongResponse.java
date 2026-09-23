@@ -5,7 +5,7 @@ import java.time.Instant;
 import in.pnkj.music_service.entity.Genre;
 import in.pnkj.music_service.entity.Song;
 
-public record SongResponse(Long SongId, String title, String songUrl, String coverUrl, String description,
+public record SongResponse(Long songId, String title, String songUrl, String coverUrl, String description,
         Long songLikes, Genre genre, Long streamCount, Instant createdAt, Long userId) {
 
     public static SongResponse from(Song entity, String songUrl, String coverUrl) {

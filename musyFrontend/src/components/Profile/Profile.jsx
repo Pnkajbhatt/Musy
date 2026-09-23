@@ -71,7 +71,7 @@ function Profile({ onPlay }) {
             .map((item) => {
               const sid = String(item.songId ?? item.id);
               return songsData.find(
-                (s) => String(s.songId ?? s.song_id ?? s.id) === sid
+                (s) => String(s.songId ?? s.SongId ?? s.song_id ?? s.id) === sid
               );
             })
             .filter(Boolean);
@@ -90,7 +90,7 @@ function Profile({ onPlay }) {
             .map((item) => {
               const sid = String(item.songId ?? item.id);
               return songsData.find(
-                (s) => String(s.songId ?? s.song_id ?? s.id) === sid
+                (s) => String(s.songId ?? s.SongId ?? s.song_id ?? s.id) === sid
               );
             })
             .filter(Boolean);
@@ -419,7 +419,7 @@ function Profile({ onPlay }) {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {likedSongs.map((song) => (
                       <SongCard
-                        key={song.songId ?? song.song_id ?? song.id}
+                        key={song.songId ?? song.SongId ?? song.song_id ?? song.id}
                         song={song}
                         onPlay={(s) => onPlay(s, likedSongs)}
                       />
@@ -451,7 +451,7 @@ function Profile({ onPlay }) {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {historySongs.map((song) => (
                       <SongCard
-                        key={song.songId ?? song.song_id ?? song.id}
+                        key={song.songId ?? song.SongId ?? song.song_id ?? song.id}
                         song={song}
                         onPlay={(s) => onPlay(s, historySongs)}
                       />
@@ -483,7 +483,7 @@ function Profile({ onPlay }) {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {uploadedSongs.map((song) => (
                       <SongCard
-                        key={song.songId ?? song.song_id ?? song.id}
+                        key={song.songId ?? song.SongId ?? song.song_id ?? song.id}
                         song={song}
                         onPlay={(s) => onPlay(s, uploadedSongs)}
                       />

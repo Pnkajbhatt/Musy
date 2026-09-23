@@ -66,7 +66,6 @@ function NavBar() {
   };
 
   const navigation = [
-    ["/", "Home"],
     ...(isArtist ? [["/upload", "Upload"]] : []),
   ];
 
@@ -92,24 +91,26 @@ function NavBar() {
           </button>
         </form>
 
-        <div className="flex items-center gap-1 rounded-2xl border border-ink-700/70 bg-ink-900/70 p-1">
-          {navigation.map(([path, label]) => (
-            <NavLink key={path} to={path} end={path === "/"}
-              className={({ isActive }) =>
-                `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "nav-link-active" : "text-ink-300 hover:bg-ink-800 hover:text-egg-50"}`
-              }>
-              {label}
-            </NavLink>
-          ))}
-          {isAdmin && (
-            <NavLink to="/admin"
-              className={({ isActive }) =>
-                `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "bg-blush-950 text-blush-300 border border-blush-800/60" : "text-blush-400 hover:bg-ink-800 hover:text-egg-50"}`
-              }>
-              Dashboard
-            </NavLink>
-          )}
-        </div>
+        {(navigation.length > 0 || isAdmin) && (
+          <div className="flex items-center gap-1 rounded-2xl border border-ink-700/70 bg-ink-900/70 p-1">
+            {navigation.map(([path, label]) => (
+              <NavLink key={path} to={path} end={path === "/"}
+                className={({ isActive }) =>
+                  `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "nav-link-active" : "text-ink-300 hover:bg-ink-800 hover:text-egg-50"}`
+                }>
+                {label}
+              </NavLink>
+            ))}
+            {isAdmin && (
+              <NavLink to="/admin"
+                className={({ isActive }) =>
+                  `rounded-xl px-3 py-2 text-sm font-medium transition sm:px-4 ${isActive ? "bg-blush-950 text-blush-300 border border-blush-800/60" : "text-blush-400 hover:bg-ink-800 hover:text-egg-50"}`
+                }>
+                Dashboard
+              </NavLink>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
           {!isAdmin && (

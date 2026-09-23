@@ -1,35 +1,86 @@
+import { useState, useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import apiFetch, { getCurrentUser } from "./apiFetch";
 import Login from "./components/AuthComponents/Login";
 import Register from "./components/AuthComponents/Register";
 import Home from "./components/Home/Home";
 import SomeUpload from "./components/Songs/SomeUpload";
 import AllSongs from "./components/Songs/AllSongs";
-import NavBar from "./components/navbar/NavBar";
-import PlayBar from "./components/Songs/PlayBar";
-import Profile from "./components/Profile/Profile";
-import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import "./index.css";
-import { useState, useEffect } from "react";
-import SongPage from "./components/Home/SongPage";
 import ApplyArtist from "./components/Artist/ApplyArtist";
+import PlayBar from "./components/Songs/PlayBar";
+import NavBar from "./components/navbar/NavBar";
+import SongPage from "./components/Home/SongPage";
 import AdminPanel from "./components/AdminPanel";
-import apiFetch from "./apiFetch";
+import Profile from "./components/Profile/Profile";
+import "./index.css";
 
 function App() {
   const [currentSong, setCurrentSong] = useState(null);
-  const [openedSong, setOpenedSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playlist, setPlaylist] = useState([]);
+  const [openedSong, setOpenedSong] = useState(null);
   const navigate = useNavigate();
 
-  // Pre-fetch songs to populate queue for next/prev
   useEffect(() => {
     apiFetch("song")
-      .then((r) => (r.ok ? r.json() : []))
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        const list = Array.isArray(data) ? data : data.data ?? [];
+        const list = Array.isArray(data) ? data : data?.data ?? [];
         if (list.length > 0) setPlaylist(list);
       })
       .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (currentSong) {
+      const token = localStorage.getItem("token");
+      const currentUser = getCurrentUser();
+      const isAdmin =
+        currentUser?.roles?.some((r) => r === "ROLE_ADMIN" || r === "ADMIN") ||
+        localStorage.getItem("role") === "ROLE_ADMIN" ||
+        localStorage.getItem("role") === "ADMIN";
+      const songId =
+        currentSong.songId ??
+        currentSong.SongId ??
+        currentSong.song_id ??
+        currentSong.id;
+      if (token && !isAdmin && songId) {
+        apiFetch(`history/${songId}`, { method: "POST" }).catch(() => {});
+      }
+    }
+  }, [currentSong]);
+
+  useEffect(() => {
+    const handleLikeToggled = (e) => {
+      const { songId, liked } = e.detail;
+      setCurrentSong((prev) => {
+        if (!prev) return prev;
+        const prevId = String(
+          prev.songId ?? prev.SongId ?? prev.song_id ?? prev.id
+        );
+        if (prevId === String(songId)) {
+          return {
+            ...prev,
+            songLikes: Math.max(0, (prev.songLikes || 0) + (liked ? 1 : -1)),
+          };
+        }
+        return prev;
+      });
+      setPlaylist((prev) =>
+        prev.map((s) => {
+          const sId = String(s.songId ?? s.SongId ?? s.song_id ?? s.id);
+          if (sId === String(songId)) {
+            return {
+              ...s,
+              songLikes: Math.max(0, (s.songLikes || 0) + (liked ? 1 : -1)),
+            };
+          }
+          return s;
+        })
+      );
+    };
+    window.addEventListener("like-toggled", handleLikeToggled);
+    return () => window.removeEventListener("like-toggled", handleLikeToggled);
   }, []);
 
   const handlePlaySong = (song, list = null) => {
@@ -37,9 +88,12 @@ function App() {
     if (list && list.length > 0) {
       setPlaylist(list);
     }
-    const songId = song.songId ?? song.song_id ?? song.id;
+    const songId = song.songId ?? song.SongId ?? song.song_id ?? song.id;
     const currentId =
-      currentSong?.songId ?? currentSong?.song_id ?? currentSong?.id;
+      currentSong?.songId ??
+      currentSong?.SongId ??
+      currentSong?.song_id ??
+      currentSong?.id;
 
     if (currentId && currentId === songId) {
       setIsPlaying((prev) => !prev);
@@ -52,9 +106,12 @@ function App() {
   const handleNextSong = () => {
     if (playlist.length === 0) return;
     const currentId =
-      currentSong?.songId ?? currentSong?.song_id ?? currentSong?.id;
+      currentSong?.songId ??
+      currentSong?.SongId ??
+      currentSong?.song_id ??
+      currentSong?.id;
     const currentIndex = playlist.findIndex(
-      (s) => (s.songId ?? s.song_id ?? s.id) === currentId
+      (s) => (s.songId ?? s.SongId ?? s.song_id ?? s.id) === currentId
     );
     const nextIndex =
       currentIndex === -1 ? 0 : (currentIndex + 1) % playlist.length;
@@ -65,9 +122,12 @@ function App() {
   const handlePreviousSong = () => {
     if (playlist.length === 0) return;
     const currentId =
-      currentSong?.songId ?? currentSong?.song_id ?? currentSong?.id;
+      currentSong?.songId ??
+      currentSong?.SongId ??
+      currentSong?.song_id ??
+      currentSong?.id;
     const currentIndex = playlist.findIndex(
-      (s) => (s.songId ?? s.song_id ?? s.id) === currentId
+      (s) => (s.songId ?? s.SongId ?? s.song_id ?? s.id) === currentId
     );
     const prevIndex =
       currentIndex === -1
@@ -122,8 +182,8 @@ function App() {
                   onPlay={handlePlaySong}
                   isPlaying={
                     isPlaying &&
-                    (currentSong?.songId ?? currentSong?.id) ===
-                      (openedSong?.songId ?? openedSong?.id)
+                    (currentSong?.songId ?? currentSong?.SongId ?? currentSong?.id) ===
+                      (openedSong?.songId ?? openedSong?.SongId ?? openedSong?.id)
                   }
                 />
               ) : (

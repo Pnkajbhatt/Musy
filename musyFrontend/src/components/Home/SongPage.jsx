@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import apiFetch, { getCurrentUser, resolveMediaUrl } from "../../apiFetch";
 
 function SongPage({ song, onBack, onPlay, isPlaying = false }) {
-  // Normalize songId — backend may return songId or song_id
-  const songId = song?.songId ?? song?.song_id ?? song?.id;
+  // Normalize songId — backend may return songId, SongId, or song_id
+  const songId = song?.songId ?? song?.SongId ?? song?.song_id ?? song?.id;
   const coverUrl = resolveMediaUrl(song?.coverUrl ?? song?.cover_url);
   const songUrl = resolveMediaUrl(song?.songUrl ?? song?.song_url);
 
@@ -35,11 +35,6 @@ function SongPage({ song, onBack, onPlay, isPlaying = false }) {
         .then((data) => setLiked(data.liked ?? false))
         .catch(() => {});
     }
-
-    // Record this song play in history (fire and forget) - non-admin listeners only
-    if (isLoggedIn && !isAdmin) {
-      apiFetch(`history/${songId}`, { method: "POST" }).catch(() => {});
-    }
   }, [songId, isLoggedIn, isAdmin]);
 
   const handleToggleLike = async () => {
@@ -48,10 +43,18 @@ function SongPage({ song, onBack, onPlay, isPlaying = false }) {
     try {
       if (liked) {
         const res = await apiFetch(`likes/${songId}`, { method: "DELETE" });
-        if (res.ok) { setLiked(false); setLikeCount((p) => Math.max(0, p - 1)); }
+        if (res.ok) { 
+          setLiked(false); 
+          setLikeCount((p) => Math.max(0, p - 1)); 
+          window.dispatchEvent(new CustomEvent('like-toggled', { detail: { songId, liked: false } }));
+        }
       } else {
         const res = await apiFetch(`likes/${songId}`, { method: "POST" });
-        if (res.ok) { setLiked(true); setLikeCount((p) => p + 1); }
+        if (res.ok) { 
+          setLiked(true); 
+          setLikeCount((p) => p + 1); 
+          window.dispatchEvent(new CustomEvent('like-toggled', { detail: { songId, liked: true } }));
+        }
       }
     } catch (err) {
       console.error("Like toggle failed:", err);

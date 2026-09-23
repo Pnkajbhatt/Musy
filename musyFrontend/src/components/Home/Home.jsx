@@ -51,7 +51,7 @@ function Home({ onPlay }) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {songs.map((song) => (
           <SongCard
-            key={song.songId ?? song.song_id ?? song.id}
+            key={song.songId ?? song.SongId ?? song.song_id ?? song.id}
             song={song}
             onPlay={(s) => onPlay(s, songs)}
           />
