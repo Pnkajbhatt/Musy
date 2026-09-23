@@ -19,9 +19,22 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playlist, setPlaylist] = useState([]);
   const [openedSong, setOpenedSong] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const navigate = useNavigate();
 
+  // Sync auth state when token changes (login/logout)
   useEffect(() => {
+    const sync = () => setIsLoggedIn(!!localStorage.getItem("token"));
+    window.addEventListener("auth-change", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("auth-change", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
     apiFetch("song")
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
@@ -29,7 +42,7 @@ function App() {
         if (list.length > 0) setPlaylist(list);
       })
       .catch(() => {});
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (currentSong) {
@@ -149,6 +162,36 @@ function App() {
     navigate("/");
   };
 
+  // If not logged in, only show Login/Register pages
+  if (!isLoggedIn) {
+    return (
+      <div className="app-shell flex min-h-screen flex-col text-ink-50">
+        <div className="ambient-blob ambient-blob-twelve" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-one" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-two" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-three" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-four" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-five" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-six" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-seven" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-eight" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-ten" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-eleven" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-nine" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-thirteen" aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-fourteen " aria-hidden="true" />
+        <div className="ambient-blob ambient-blob-fifteen " aria-hidden="true" />
+
+        <main className="mx-auto flex w-full max-w-7xl flex-1 items-start justify-center px-4 py-8 sm:px-8">
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<Login />} />
+          </Routes>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell flex min-h-screen flex-col text-ink-50">
       <div className="ambient-blob ambient-blob-twelve" aria-hidden="true" />
@@ -196,8 +239,8 @@ function App() {
           <Route path="/profile" element={<Profile onPlay={handlePlaySong} />} />
           <Route path="/apply-artist" element={<ApplyArtist />} />
           <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="/register" element={<Navigate to="/" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
@@ -214,3 +257,4 @@ function App() {
 }
 
 export default App;
+

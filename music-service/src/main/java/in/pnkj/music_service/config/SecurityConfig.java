@@ -24,8 +24,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/song", "/api/songs", "/api/song/**", "/api/songs/**", "/api/files/**").permitAll()
-                        .requestMatchers(HttpMethod.HEAD, "/api/song", "/api/songs", "/api/song/**", "/api/songs/**", "/api/files/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/song", "/api/songs", "/api/song/**", "/api/songs/**").permitAll()
+                        .requestMatchers(HttpMethod.HEAD, "/api/song", "/api/songs", "/api/song/**", "/api/songs/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/files/**").hasAnyRole("USER", "ARTIST", "ADMIN")
+                        .requestMatchers(HttpMethod.HEAD, "/api/files/**").hasAnyRole("USER", "ARTIST", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/song", "/api/songs").hasRole("ARTIST")
                         .requestMatchers(HttpMethod.DELETE, "/api/song/**", "/api/songs/**").hasAnyRole("ARTIST", "ADMIN")
                         .anyRequest().authenticated())
