@@ -25,6 +25,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtService jwtService;
+    private final in.pnkj.auth_service.util.CookieUtil cookieUtil;
 
     @Override
     protected void doFilterInternal(
@@ -32,34 +33,36 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
+        String token = null;
         String authorization = request.getHeader("Authorization");
 
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            token = authorization.substring(7);
+        } else {
+            token = cookieUtil.extractAccessToken(request).orElse(null);
         }
 
-        String token = authorization.substring(7);
+        if (token != null && !token.isBlank()) {
+            try {
+                String username = jwtService.ExtractUsername(token);
 
-        try {
-            String username = jwtService.ExtractUsername(token);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                    if (jwtService.isTokenValid(token, userDetails.getUsername())) {
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities());
 
-                if (jwtService.isTokenValid(token, userDetails.getUsername())) {
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities());
-
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+                log.debug("JWT authentication failed: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            SecurityContextHolder.clearContext();
-            log.debug("JWT authentication failed: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
@@ -68,6 +71,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/api/auth");
+        return path.equals("/api/auth/login") ||
+               path.equals("/api/auth/register") ||
+               path.equals("/api/auth/refresh");
     }
 }

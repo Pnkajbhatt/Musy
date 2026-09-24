@@ -15,7 +15,8 @@ function Profile({ onPlay }) {
   const [loading, setLoading] = useState(true);
   const [clearingHistory, setClearingHistory] = useState(false);
 
-  const isLoggedIn = !!localStorage.getItem("token");
+  const isLoggedIn =
+    !!localStorage.getItem("user") || !!localStorage.getItem("token") || !!localStorage.getItem("username");
 
   useEffect(() => {
     setCurrentUser(getCurrentUser());
@@ -121,9 +122,15 @@ function Profile({ onPlay }) {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await apiFetch("auth/logout", { method: "POST" });
+    } catch {}
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     localStorage.removeItem("username");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user_avatar");
     window.dispatchEvent(new Event("auth-change"));
     navigate("/");
   };

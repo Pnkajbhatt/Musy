@@ -19,6 +19,7 @@ jobs:
       music:    ${{ steps.filter.outputs.music }}
       like:     ${{ steps.filter.outputs.like }}
       history:  ${{ steps.filter.outputs.history }}
+      frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -39,6 +40,8 @@ jobs:
               - 'like-service/**'
             history:
               - 'history-service/**'
+            frontend:
+              - 'musyFrontend/**'
 
   # ──────────────────────────────────────────────
   # 2. BUILD & PUSH CHANGED SERVICES TO DOCKER HUB
@@ -48,13 +51,14 @@ jobs:
     runs-on: ubuntu-latest
     # Only run if at least one service changed
     if: |
-      needs.detect.outputs.eureka  == 'true' ||
-      needs.detect.outputs.gateway == 'true' ||
-      needs.detect.outputs.auth    == 'true' ||
-      needs.detect.outputs.user    == 'true' ||
-      needs.detect.outputs.music   == 'true' ||
-      needs.detect.outputs.like    == 'true' ||
-      needs.detect.outputs.history == 'true'
+      needs.detect.outputs.eureka   == 'true' ||
+      needs.detect.outputs.gateway  == 'true' ||
+      needs.detect.outputs.auth     == 'true' ||
+      needs.detect.outputs.user     == 'true' ||
+      needs.detect.outputs.music    == 'true' ||
+      needs.detect.outputs.like     == 'true' ||
+      needs.detect.outputs.history  == 'true' ||
+      needs.detect.outputs.frontend == 'true'
 
     steps:
       - uses: actions/checkout@v4
@@ -120,6 +124,16 @@ jobs:
           context: ./history-service
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-history:latest
+
+      - name: Build & Push frontend
+        if: needs.detect.outputs.frontend == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./musyFrontend
+          push: true
+          build-args: |
+            VITE_BACKEND_URL=https://musy-pnkj.duckdns.org
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/musy-frontend:latest
 
   # ──────────────────────────────────────────────
   # 3. DEPLOY ONLY CHANGED SERVICES TO EC2
@@ -187,6 +201,12 @@ jobs:
               echo "▶ Deploying history-service..."
               docker compose pull history-service
               docker compose up -d --no-deps history-service
+            fi
+
+            if [ "${{ needs.detect.outputs.frontend }}" = "true" ]; then
+              echo "▶ Deploying frontend..."
+              docker compose pull frontend
+              docker compose up -d --no-deps frontend
             fi
 
             # Ensure Caddy reverse proxy is running with HTTPS

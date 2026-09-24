@@ -15,19 +15,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import in.pnkj.user_service.entity.ApplicationStatus;
 import in.pnkj.user_service.entity.ArtistApplications;
-import in.pnkj.user_service.entity.dto.AuthUserResponseDTO;
-import in.pnkj.user_service.entity.dto.CreateUserRequestDTO;
+import in.pnkj.user_service.entity.AuthProvider;
+import in.pnkj.user_service.dto.AuthUserResponseDTO;
+import in.pnkj.user_service.dto.CreateUserRequestDTO;
 import in.pnkj.user_service.entity.Role;
 import in.pnkj.user_service.entity.RoleType;
 import in.pnkj.user_service.entity.User;
-import in.pnkj.user_service.entity.dto.ApplicationReqDTO;
-import in.pnkj.user_service.entity.dto.ApplicationsResDTO;
-import in.pnkj.user_service.entity.dto.CreateUserResponseDTO;
-import in.pnkj.user_service.entity.dto.UserRequest;
-import in.pnkj.user_service.entity.dto.UserResponse;
-import in.pnkj.user_service.entity.dto.UserSummaryDTO;
-import in.pnkj.user_service.entity.dto.ArtistDetailDTO;
-import in.pnkj.user_service.entity.dto.AdminStatsDTO;
+import in.pnkj.user_service.dto.ApplicationReqDTO;
+import in.pnkj.user_service.dto.ApplicationsResDTO;
+import in.pnkj.user_service.dto.CreateUserResponseDTO;
+import in.pnkj.user_service.dto.UserRequest;
+import in.pnkj.user_service.dto.UserResponse;
+import in.pnkj.user_service.dto.UserSummaryDTO;
+import in.pnkj.user_service.dto.ArtistDetailDTO;
+import in.pnkj.user_service.dto.AdminStatsDTO;
 import in.pnkj.user_service.exceptions.DuplicateResourceException;
 import in.pnkj.user_service.exceptions.ResourceNotFoundException;
 import in.pnkj.user_service.repo.RoleRepository;
@@ -61,6 +62,7 @@ public class UserService {
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(role);
+        user.setAuthProvider(AuthProvider.LOCAL);
 
         User savedUser = userRepository.save(user);
 
@@ -72,6 +74,105 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("user not Found"));
         return new AuthUserResponseDTO(user.getUserId(), user.getUsername(), user.getPassword(),
                 user.getRole().getName().name());
+    }
+
+    public AuthUserResponseDTO getUserByIdForAuth(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("user not Found with id: " + id));
+        return new AuthUserResponseDTO(user.getUserId(), user.getUsername(), user.getPassword(),
+                user.getRole().getName().name());
+    }
+
+    @Transactional
+    public AuthUserResponseDTO findOrCreateOAuthUser(AuthProvider provider, String email, String username, String providerId) {
+        // 1. Try to find by provider and providerId if available
+        Optional<User> userOpt = Optional.empty();
+        if (providerId != null && !providerId.isBlank()) {
+            userOpt = userRepository.findByAuthProviderAndProviderId(provider, providerId);
+        }
+
+        // 2. Fall back to finding by email
+        if (userOpt.isEmpty() && email != null && !email.isBlank()) {
+            userOpt = userRepository.findByEmail(email);
+        }
+
+        User user;
+        if (userOpt.isPresent()) {
+            user = userOpt.get();
+            boolean updated = false;
+            if (user.getProviderId() == null && providerId != null) {
+                user.setProviderId(providerId);
+                updated = true;
+            }
+            if (user.getAuthProvider() == null || (user.getAuthProvider() == AuthProvider.LOCAL && provider != AuthProvider.LOCAL)) {
+                user.setAuthProvider(provider);
+                updated = true;
+            }
+            if (updated) {
+                user = userRepository.save(user);
+            }
+        } else {
+            // 3. Create a new user
+            Role role = roleRepository.findByName(RoleType.USER)
+                    .orElseGet(() -> {
+                        Role newRole = new Role(2L, RoleType.USER);
+                        return roleRepository.save(newRole);
+                    });
+
+            String finalUsername = resolveUniqueUsername(username, email);
+
+            User newUser = User.builder()
+                    .email(email)
+                    .username(finalUsername)
+                    .authProvider(provider != null ? provider : AuthProvider.LOCAL)
+                    .providerId(providerId)
+                    .role(role)
+                    .password(null)
+                    .build();
+
+            user = userRepository.save(newUser);
+        }
+
+        return new AuthUserResponseDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getRole() != null && user.getRole().getName() != null ? user.getRole().getName().name() : "USER"
+        );
+    }
+
+    private String resolveUniqueUsername(String username, String email) {
+        String baseName;
+        if (username != null && !username.isBlank()) {
+            baseName = username.trim().replaceAll("[^a-zA-Z0-9_.-]", "_");
+        } else if (email != null && !email.isBlank()) {
+            baseName = email.split("@")[0].replaceAll("[^a-zA-Z0-9_.-]", "_");
+        } else {
+            baseName = "user";
+        }
+
+        if (baseName.isBlank()) {
+            baseName = "user";
+        }
+
+        String candidate = baseName;
+        int count = 1;
+        while (userRepository.existsByUsername(candidate)) {
+            candidate = baseName + count;
+            count++;
+        }
+        return candidate;
+    }
+
+    public AuthUserResponseDTO getUserByProviderAndEmail(AuthProvider provider, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        return new AuthUserResponseDTO(
+                user.getUserId(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getRole() != null && user.getRole().getName() != null ? user.getRole().getName().name() : "USER"
+        );
     }
 
     public String deleteUser(Long id) {

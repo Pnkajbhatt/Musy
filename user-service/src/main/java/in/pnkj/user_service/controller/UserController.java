@@ -12,11 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import in.pnkj.user_service.entity.dto.ApiResponse;
-import in.pnkj.user_service.entity.dto.ApplicationReqDTO;
-import in.pnkj.user_service.entity.dto.ApplicationsResDTO;
-import in.pnkj.user_service.entity.dto.CreateUserRequestDTO;
-import in.pnkj.user_service.entity.dto.CreateUserResponseDTO;
+import in.pnkj.user_service.dto.ApiResponse;
+import in.pnkj.user_service.dto.ApplicationReqDTO;
+import in.pnkj.user_service.dto.ApplicationsResDTO;
+import in.pnkj.user_service.dto.AuthUserResponseDTO;
+import in.pnkj.user_service.dto.CreateUserRequestDTO;
+import in.pnkj.user_service.dto.CreateUserResponseDTO;
+import in.pnkj.user_service.dto.OAuthUserRequest;
 import in.pnkj.user_service.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -64,6 +66,24 @@ public class UserController {
                 myApp != null ? "Application status fetched" : "No application found",
                 httpServletRequest.getRequestURI());
 
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/oauth/find-or-create")
+    public ResponseEntity<ApiResponse<AuthUserResponseDTO>> findOrCreateOAuthUser(
+            @Valid @RequestBody OAuthUserRequest request,
+            HttpServletRequest httpServletRequest) {
+        AuthUserResponseDTO user = userService.findOrCreateOAuthUser(
+                request.provider(),
+                request.email(),
+                request.username(),
+                request.providerId()
+        );
+        ApiResponse<AuthUserResponseDTO> response = ApiResponse.Success(
+                user,
+                "OAuth user processed successfully",
+                httpServletRequest.getRequestURI()
+        );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -17,7 +17,7 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
   jwt:
     secret: ${JWT_SECRETE_KEY}
     expiration-ms: ${JWT_EXPIRE}

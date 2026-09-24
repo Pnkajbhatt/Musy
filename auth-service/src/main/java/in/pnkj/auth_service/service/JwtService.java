@@ -6,6 +6,8 @@ import java.util.List;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,7 @@ public class JwtService {
         this.expirationMs = expirationMs;
     }
 
-    public String GenerateJwtToken(Authentication authentication) {
+    public String generateJwtToken(Authentication authentication) {
         List<String> authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .filter(authority -> authority != null && authority.startsWith("ROLE_"))
@@ -47,6 +49,24 @@ public class JwtService {
                 .compact();
     }
 
+    public String generateJwtToken(Long userId, String username, String role) {
+        Date issuedAt = new Date();
+        String formattedRole = (role != null && !role.startsWith("ROLE_")) ? "ROLE_" + role : role;
+
+        return Jwts.builder()
+                .subject(username)
+                .claim("userId", userId)
+                .claim("authorities", List.of(formattedRole != null ? formattedRole : "ROLE_USER"))
+                .issuedAt(issuedAt)
+                .expiration(new Date(issuedAt.getTime() + expirationMs))
+                .signWith(signedKey)
+                .compact();
+    }
+
+    public String generateAccessToken(String username, Long userId, String role) {
+        return generateJwtToken(userId, username, role);
+    }
+
     public String ExtractUsername(String token) {
         return parseClaims(token).getSubject();
     }
@@ -63,4 +83,6 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+
 }

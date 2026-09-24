@@ -2,3 +2,11 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+
+app:
+  oauth2:
+    redirect-uri: ${APP_OAUTH2_REDIRECT_URI:http://localhost:3000/}
+  cookie:
+    secure: false
+    same-site: Lax
+    domain: ""

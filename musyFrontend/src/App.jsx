@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import apiFetch, { getCurrentUser } from "./apiFetch";
 import Login from "./components/AuthComponents/Login";
 import Register from "./components/AuthComponents/Register";
+import OAuthCallback from "./components/AuthComponents/OAuthCallback";
 import Home from "./components/Home/Home";
 import SomeUpload from "./components/Songs/SomeUpload";
 import AllSongs from "./components/Songs/AllSongs";
@@ -19,12 +20,32 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playlist, setPlaylist] = useState([]);
   const [openedSong, setOpenedSong] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("user") || !!localStorage.getItem("token") || !!localStorage.getItem("username")
+  );
   const navigate = useNavigate();
 
-  // Sync auth state when token changes (login/logout)
+  // Validate or restore session from HTTP-only cookie on mount
   useEffect(() => {
-    const sync = () => setIsLoggedIn(!!localStorage.getItem("token"));
+    apiFetch("auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.data) {
+          localStorage.setItem("user", JSON.stringify(data.data));
+          if (data.data.username) localStorage.setItem("username", data.data.username);
+          if (data.data.role) localStorage.setItem("role", data.data.role);
+          setIsLoggedIn(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Sync auth state when storage or auth-change event fires
+  useEffect(() => {
+    const sync = () =>
+      setIsLoggedIn(
+        !!localStorage.getItem("user") || !!localStorage.getItem("token") || !!localStorage.getItem("username")
+      );
     window.addEventListener("auth-change", sync);
     window.addEventListener("storage", sync);
     return () => {
@@ -185,6 +206,7 @@ function App() {
         <main className="mx-auto flex w-full max-w-7xl flex-1 items-start justify-center px-4 py-8 sm:px-8">
           <Routes>
             <Route path="/register" element={<Register />} />
+            <Route path="/oauth/callback" element={<OAuthCallback />} />
             <Route path="*" element={<Login />} />
           </Routes>
         </main>

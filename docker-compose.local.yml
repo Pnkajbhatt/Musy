@@ -24,6 +24,12 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - USER_SERVICE_URI=http://user-service:8082
+      - AUTH_SERVICE_URI=http://auth-service:8081
+      - MUSIC_SERVICE_URI=http://music-service:8083
+      - LIKE_SERVICE_URI=http://like-service:8084
+      - HISTORY_SERVICE_URI=http://history-service:8085
     networks:
       - musy-network-local
 
@@ -39,6 +45,8 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - APP_OAUTH2_REDIRECT_URI=http://localhost:3000/
     networks:
       - musy-network-local
 
@@ -54,6 +62,8 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+      - APP_API_BASE_URL=http://localhost:8080
     networks:
       - musy-network-local
 
@@ -69,6 +79,7 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
       - APP_API_BASE_URL=http://localhost:8080
     networks:
       - musy-network-local
@@ -85,6 +96,7 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
     networks:
       - musy-network-local
 
@@ -100,6 +112,18 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka/
+    networks:
+      - musy-network-local
+
+  frontend:
+    build:
+      context: ./musyFrontend
+      args:
+        - VITE_BACKEND_URL=http://localhost:8080
+    container_name: frontend-local
+    ports:
+      - "3000:80"
     networks:
       - musy-network-local
 

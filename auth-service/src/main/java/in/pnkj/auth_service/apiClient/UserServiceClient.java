@@ -1,5 +1,6 @@
 package in.pnkj.auth_service.apiClient;
 
+import in.pnkj.auth_service.dto.GoogleOAuthRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,4 +18,10 @@ public interface UserServiceClient {
 
     @GetMapping("/internal/users/{username}")
     AuthUserDTO getUserByUsername(@PathVariable("username") String username);
+
+    @GetMapping("/internal/users/id/{userId}")
+    AuthUserDTO getUserById(@PathVariable("userId") Long userId);
+
+    @PostMapping("/internal/users/oauth/google")
+    AuthUserDTO findOrCreateGoogleUser(@RequestBody GoogleOAuthRequest request);
 }

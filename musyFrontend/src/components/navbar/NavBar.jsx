@@ -5,14 +5,18 @@ import apiFetch, { getCurrentUser, resolveMediaUrl } from "../../apiFetch";
 function NavBar() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("user") || !!localStorage.getItem("token") || !!localStorage.getItem("username")
+  );
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const [avatarUrl, setAvatarUrl] = useState(localStorage.getItem("user_avatar") || null);
 
-  // Re-check auth state when token changes (login/logout)
+  // Re-check auth state when token or user session changes (login/logout)
   useEffect(() => {
     const sync = () => {
-      setIsLoggedIn(!!localStorage.getItem("token"));
+      setIsLoggedIn(
+        !!localStorage.getItem("user") || !!localStorage.getItem("token") || !!localStorage.getItem("username")
+      );
       setCurrentUser(getCurrentUser());
       setAvatarUrl(localStorage.getItem("user_avatar") || null);
     };
@@ -58,8 +62,15 @@ function NavBar() {
     navigate(query ? `/browse?q=${encodeURIComponent(query)}` : "/browse");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await apiFetch("auth/logout", { method: "POST" });
+    } catch {}
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user_avatar");
     setIsLoggedIn(false);
     window.dispatchEvent(new Event("auth-change"));
     navigate("/");

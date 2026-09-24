@@ -1,4 +1,4 @@
-package in.pnkj.user_service.entity.dto;
+package in.pnkj.user_service.dto;
 
 public record ArtistDetailDTO(
     Long userId,

@@ -8,8 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import in.pnkj.user_service.entity.dto.ApiError;
-import in.pnkj.user_service.entity.dto.ApiResponse;
+import in.pnkj.user_service.dto.ApiError;
+import in.pnkj.user_service.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice

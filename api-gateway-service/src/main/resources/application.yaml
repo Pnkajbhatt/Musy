@@ -16,9 +16,8 @@ spring:
             cors-configurations:
               "[/**]":
                 allowedOriginPatterns:
-                  - "https://musy-five.vercel.app"
-                  - "https://musy-git-main-pankaj-bhatt-s-projects.vercel.app"
-                  - "https://*.vercel.app"
+                  - "https://musy-pnkj.duckdns.org"
+                  - "http://musy-pnkj.duckdns.org"
                   - "http://localhost:5173"
                   - "http://localhost:3000"
                   - "http://localhost:8080"
