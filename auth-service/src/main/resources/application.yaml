@@ -32,10 +32,11 @@ spring:
               - openid
               - profile
               - email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "${GOOGLE_REDIRECT_URI:{baseUrl}/login/oauth2/code/{registrationId}}"
 
 server:
   port: 8081
+  forward-headers-strategy: framework
 
 eureka:
   instance:

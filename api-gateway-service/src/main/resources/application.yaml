@@ -33,6 +33,7 @@ spring:
                 maxAge: 3600
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin  Access-Control-Allow-Credentials, RETAIN_FIRST
+            - PreserveHostHeader
           httpclient:
             connect-timeout: 30000
             response-timeout: 120s

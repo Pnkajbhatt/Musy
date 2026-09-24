@@ -3,6 +3,9 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka/}
 
+server:
+  forward-headers-strategy: framework
+
 app:
   cookie:
     secure: true
