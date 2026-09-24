@@ -90,6 +90,12 @@ function Login() {
           {loading ? "Logging in…" : "Log in"}
         </button>
       </form>
+      <p className="mt-6 text-center text-sm text-ink-400">
+        Don't have an account?{" "}
+        <Link to="/register" className="font-semibold text-aqua-400 hover:text-aqua-300 transition">
+          Register
+        </Link>
+      </p>
     </section>
   );
 }

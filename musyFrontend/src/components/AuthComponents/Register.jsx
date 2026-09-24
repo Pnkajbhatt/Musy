@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import apiFetch from "../../apiFetch";
 
 function Register() {
@@ -88,6 +88,12 @@ function Register() {
           {loading ? "Creating account…" : "Create account"}
         </button>
       </form>
+      <p className="mt-6 text-center text-sm text-ink-400">
+        Already have an account?{" "}
+        <Link to="/login" className="font-semibold text-aqua-400 hover:text-aqua-300 transition">
+          Log in
+        </Link>
+      </p>
     </section>
   );
 }
