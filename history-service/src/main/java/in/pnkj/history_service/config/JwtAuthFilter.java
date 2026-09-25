@@ -25,22 +25,42 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        String token = null;
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        } else if (request.getCookies() != null) {
+            token = java.util.Arrays.stream(request.getCookies())
+                    .filter(c -> "musy_access_token".equals(c.getName()) || "accessToken".equals(c.getName()))
+                    .map(jakarta.servlet.http.Cookie::getValue)
+                    .filter(val -> val != null && !val.isBlank())
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (token == null || token.isBlank()) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = authHeader.substring(7);
 
         try {
             if (jwtService.isTokenValid(token)) {
                 String username = jwtService.extractUsername(token);
                 List<String> authorities = jwtService.extractAuthorities(token);
-                List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream()
-                        .filter(authority -> authority != null && authority.startsWith("ROLE_"))
-                        .map(SimpleGrantedAuthority::new).toList();
+                List<SimpleGrantedAuthority> grantedAuthorities = new java.util.ArrayList<>();
+                if (authorities != null) {
+                    for (String authority : authorities) {
+                        if (authority != null && !authority.isBlank()) {
+                            grantedAuthorities.add(new SimpleGrantedAuthority(authority));
+                            if (!authority.startsWith("ROLE_")) {
+                                grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + authority));
+                            } else {
+                                grantedAuthorities.add(new SimpleGrantedAuthority(authority.substring(5)));
+                            }
+                        }
+                    }
+                }
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,
                         null, grantedAuthorities);

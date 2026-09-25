@@ -28,9 +28,16 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"success\":false,\"message\":\"Unauthorized: Authentication required\",\"data\":null}");
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/Admin/**", "/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/Admin/**", "/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ADMIN")
                         .requestMatchers("/api/users/artist/apply", "/api/users/artist/status", "/api/users/artist/my-application").authenticated()
                         .requestMatchers("/api/users/**", "/internal/users/**").permitAll()
                         .anyRequest().permitAll())

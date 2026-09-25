@@ -43,59 +43,127 @@ const AdminPanel = () => {
     navigate("/");
   };
 
+  const fetchWithFallback = async (primaryPath, fallbackPath, options = {}) => {
+    try {
+      const res = await apiFetch(primaryPath, options);
+      if (res.ok || (res.status !== 404 && res.status !== 405)) {
+        return res;
+      }
+      return await apiFetch(fallbackPath, options);
+    } catch {
+      return await apiFetch(fallbackPath, options);
+    }
+  };
+
   const loadDashboardData = async () => {
     setLoading(true);
+    let authError = false;
+    let serviceError = false;
+
     try {
       const [statsRes, usersRes, artistsRes, songsRes, appsRes] =
         await Promise.allSettled([
-          apiFetch("Admin/stats"),
-          apiFetch("Admin/users"),
-          apiFetch("Admin/artists"),
+          fetchWithFallback("Admin/stats", "admin/stats"),
+          fetchWithFallback("Admin/users", "admin/users"),
+          fetchWithFallback("Admin/artists", "admin/artists"),
           apiFetch("song"),
-          apiFetch("Admin/artist/applications"),
+          fetchWithFallback(
+            "Admin/artist/applications",
+            "admin/artist/applications"
+          ),
         ]);
 
       let songList = [];
       if (songsRes.status === "fulfilled" && songsRes.value.ok) {
-        const data = await songsRes.value.json();
+        const data = await songsRes.value.json().catch(() => []);
         songList = Array.isArray(data) ? data : data.data ?? [];
         setSongs(songList);
       }
 
-      if (statsRes.status === "fulfilled" && statsRes.value.ok) {
-        const json = await statsRes.value.json();
-        const statData = json.data || {};
-        setStats({
-          totalUsers: statData.totalUsers ?? 0,
-          totalArtists: statData.totalArtists ?? 0,
-          totalListeners: statData.totalListeners ?? 0,
-          pendingApplications: statData.pendingApplications ?? 0,
-          totalSongs: songList.length,
+      if (statsRes.status === "fulfilled") {
+        if (statsRes.value.ok) {
+          const json = await statsRes.value.json().catch(() => ({}));
+          const statData = json.data || json || {};
+          setStats({
+            totalUsers: statData.totalUsers ?? 0,
+            totalArtists: statData.totalArtists ?? 0,
+            totalListeners: statData.totalListeners ?? 0,
+            pendingApplications: statData.pendingApplications ?? 0,
+            totalSongs: songList.length,
+          });
+        } else if (statsRes.value.status === 401 || statsRes.value.status === 403) {
+          authError = true;
+        }
+      }
+
+      if (usersRes.status === "fulfilled") {
+        if (usersRes.value.ok) {
+          const json = await usersRes.value.json().catch(() => ({}));
+          const userList = Array.isArray(json)
+            ? json
+            : Array.isArray(json.data)
+            ? json.data
+            : [];
+          setUsers(userList);
+        } else if (usersRes.value.status === 401 || usersRes.value.status === 403) {
+          authError = true;
+        } else {
+          serviceError = true;
+        }
+      } else {
+        serviceError = true;
+      }
+
+      if (artistsRes.status === "fulfilled") {
+        if (artistsRes.value.ok) {
+          const json = await artistsRes.value.json().catch(() => ({}));
+          const artistList = Array.isArray(json)
+            ? json
+            : Array.isArray(json.data)
+            ? json.data
+            : [];
+          setArtists(artistList);
+        } else if (artistsRes.value.status === 401 || artistsRes.value.status === 403) {
+          authError = true;
+        }
+      }
+
+      if (appsRes.status === "fulfilled") {
+        if (appsRes.value.ok) {
+          const json = await appsRes.value.json().catch(() => ({}));
+          const appList = Array.isArray(json)
+            ? json
+            : Array.isArray(json.data)
+            ? json.data
+            : [];
+          setApplications(appList);
+          const pendingCount = appList.filter(
+            (a) => (a.status || a.applicationStatus) === "PENDING"
+          ).length;
+          setStats((prev) => ({
+            ...prev,
+            pendingApplications: pendingCount,
+            totalSongs: songList.length,
+          }));
+        } else if (appsRes.value.status === 401 || appsRes.value.status === 403) {
+          authError = true;
+        } else {
+          serviceError = true;
+        }
+      } else {
+        serviceError = true;
+      }
+
+      if (authError) {
+        setMessage({
+          type: "error",
+          text: "Administrator session expired or unauthorized. Please re-login as an admin.",
         });
-      }
-
-      if (usersRes.status === "fulfilled" && usersRes.value.ok) {
-        const json = await usersRes.value.json();
-        setUsers(json.data || []);
-      }
-
-      if (artistsRes.status === "fulfilled" && artistsRes.value.ok) {
-        const json = await artistsRes.value.json();
-        setArtists(json.data || []);
-      }
-
-      if (appsRes.status === "fulfilled" && appsRes.value.ok) {
-        const json = await appsRes.value.json();
-        const appList = json.data || [];
-        setApplications(appList);
-        const pendingCount = appList.filter(
-          (a) => a.status === "PENDING"
-        ).length;
-        setStats((prev) => ({
-          ...prev,
-          pendingApplications: pendingCount,
-          totalSongs: songList.length,
-        }));
+      } else if (serviceError) {
+        setMessage({
+          type: "error",
+          text: "Could not load user or application lists. Please ensure user-service is reachable.",
+        });
       }
     } catch (err) {
       console.error("Error loading admin dashboard:", err);
@@ -119,13 +187,14 @@ const AdminPanel = () => {
   const handleApprove = async (applicationId, artistName) => {
     setActionLoading(applicationId);
     try {
-      const res = await apiFetch(
+      const res = await fetchWithFallback(
         `Admin/artist/applications/${applicationId}/approve`,
+        `admin/artist/applications/${applicationId}/approve`,
         {
           method: "POST",
         }
       );
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setMessage({
           type: "success",
@@ -133,12 +202,11 @@ const AdminPanel = () => {
         });
         setApplications((prev) =>
           prev.map((app) =>
-            app.applicationID === applicationId
-              ? { ...app, status: "APPROVED" }
+            (app.applicationID ?? app.applicationId) === applicationId
+              ? { ...app, status: "APPROVED", applicationStatus: "APPROVED" }
               : app
           )
         );
-        // Refresh stats and artists
         loadDashboardData();
       } else {
         setMessage({
@@ -163,13 +231,14 @@ const AdminPanel = () => {
     }
     setActionLoading(applicationId);
     try {
-      const res = await apiFetch(
+      const res = await fetchWithFallback(
         `Admin/artist/applications/${applicationId}/reject`,
+        `admin/artist/applications/${applicationId}/reject`,
         {
           method: "POST",
         }
       );
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setMessage({
           type: "info",
@@ -177,8 +246,8 @@ const AdminPanel = () => {
         });
         setApplications((prev) =>
           prev.map((app) =>
-            app.applicationID === applicationId
-              ? { ...app, status: "REJECTED" }
+            (app.applicationID ?? app.applicationId) === applicationId
+              ? { ...app, status: "REJECTED", applicationStatus: "REJECTED" }
               : app
           )
         );
@@ -656,107 +725,113 @@ const AdminPanel = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {filteredApps.map((app) => (
-                <div
-                  key={app.applicationID}
-                  className="glass rounded-3xl p-5 sm:p-6 space-y-4 border border-ink-800 hover:border-ink-700 transition"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      {resolveMediaUrl(app.imageUrl) ? (
-                        <img
-                          src={resolveMediaUrl(app.imageUrl)}
-                          alt={app.artistName}
-                          className="h-14 w-14 rounded-2xl object-cover border border-ink-700 shadow-md"
-                        />
-                      ) : (
-                        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-ink-800 text-2xl text-ink-400 border border-ink-700">
-                          🎙️
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="font-display text-lg font-bold text-egg-50">
-                          {app.artistName}
-                        </h3>
-                        <p className="text-xs text-ink-400">
-                          Username:{" "}
-                          <span className="text-egg-50 font-medium">
-                            @{app.username}
-                          </span>
-                          {app.userID && (
-                            <span className="ml-1 text-ink-500">
-                              · ID #{app.userID}
+              {filteredApps.map((app) => {
+                const appId = app.applicationID ?? app.applicationId;
+                const appUserId = app.userID ?? app.userId;
+                const appStatus = app.status || app.applicationStatus || "PENDING";
+
+                return (
+                  <div
+                    key={appId}
+                    className="glass rounded-3xl p-5 sm:p-6 space-y-4 border border-ink-800 hover:border-ink-700 transition"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        {resolveMediaUrl(app.imageUrl) ? (
+                          <img
+                            src={resolveMediaUrl(app.imageUrl)}
+                            alt={app.artistName}
+                            className="h-14 w-14 rounded-2xl object-cover border border-ink-700 shadow-md"
+                          />
+                        ) : (
+                          <div className="grid h-14 w-14 place-items-center rounded-2xl bg-ink-800 text-2xl text-ink-400 border border-ink-700">
+                            🎙️
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-display text-lg font-bold text-egg-50">
+                            {app.artistName}
+                          </h3>
+                          <p className="text-xs text-ink-400">
+                            Username:{" "}
+                            <span className="text-egg-50 font-medium">
+                              @{app.username}
                             </span>
-                          )}
-                        </p>
-                        <span className="inline-block mt-1 text-[11px] rounded-lg bg-ink-800/80 px-2 py-0.5 text-aqua-300 font-medium">
-                          {app.genre || "General"}
-                        </span>
+                            {appUserId && (
+                              <span className="ml-1 text-ink-500">
+                                · ID #{appUserId}
+                              </span>
+                            )}
+                          </p>
+                          <span className="inline-block mt-1 text-[11px] rounded-lg bg-ink-800/80 px-2 py-0.5 text-aqua-300 font-medium">
+                            {app.genre || "General"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${
+                          appStatus === "APPROVED"
+                            ? "bg-aqua-950/80 text-aqua-300 border-aqua-800/60"
+                            : appStatus === "PENDING"
+                            ? "bg-amber-950/80 text-amber-300 border-amber-800/60"
+                            : "bg-blush-950/80 text-blush-300 border-blush-800/60"
+                        }`}
+                      >
+                        {appStatus}
+                      </span>
+                    </div>
+
+                    {/* Bio */}
+                    {app.bio && (
+                      <div className="rounded-xl bg-ink-900/60 p-3 text-xs text-ink-300 border border-ink-800/80 italic">
+                        "{app.bio}"
+                      </div>
+                    )}
+
+                    {/* Application Details Footer & Actions */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-ink-800/80">
+                      <span className="text-[11px] text-ink-500 font-mono">
+                        Submitted:{" "}
+                        {app.createdAt
+                          ? new Date(app.createdAt).toLocaleDateString()
+                          : "Recently"}
+                      </span>
+
+                      <div className="flex items-center gap-2 ml-auto">
+                        {appStatus !== "APPROVED" && (
+                          <button
+                            onClick={() =>
+                              handleApprove(appId, app.artistName)
+                            }
+                            disabled={actionLoading === appId}
+                            className="rounded-xl bg-aqua-500 hover:bg-aqua-400 text-ink-950 px-3.5 py-1.5 text-xs font-bold shadow-md shadow-aqua-500/20 transition disabled:opacity-50"
+                          >
+                            {actionLoading === appId
+                              ? "Approving…"
+                              : "Approve Artist"}
+                          </button>
+                        )}
+
+                        {appStatus !== "REJECTED" && (
+                          <button
+                            onClick={() =>
+                              handleReject(appId, app.artistName)
+                            }
+                            disabled={actionLoading === appId}
+                            className="rounded-xl border border-blush-800/60 bg-blush-950/40 hover:bg-blush-900/60 text-blush-300 px-3 py-1.5 text-xs font-semibold transition disabled:opacity-50"
+                          >
+                            {actionLoading === appId
+                              ? "Rejecting…"
+                              : "Reject"}
+                          </button>
+                        )}
                       </div>
                     </div>
-
-                    {/* Status Badge */}
-                    <span
-                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${
-                        app.status === "APPROVED"
-                          ? "bg-aqua-950/80 text-aqua-300 border-aqua-800/60"
-                          : app.status === "PENDING"
-                          ? "bg-amber-950/80 text-amber-300 border-amber-800/60"
-                          : "bg-blush-950/80 text-blush-300 border-blush-800/60"
-                      }`}
-                    >
-                      {app.status}
-                    </span>
                   </div>
-
-                  {/* Bio */}
-                  {app.bio && (
-                    <div className="rounded-xl bg-ink-900/60 p-3 text-xs text-ink-300 border border-ink-800/80 italic">
-                      "{app.bio}"
-                    </div>
-                  )}
-
-                  {/* Application Details Footer & Actions */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-ink-800/80">
-                    <span className="text-[11px] text-ink-500 font-mono">
-                      Submitted:{" "}
-                      {app.createdAt
-                        ? new Date(app.createdAt).toLocaleDateString()
-                        : "Recently"}
-                    </span>
-
-                    <div className="flex items-center gap-2 ml-auto">
-                      {app.status !== "APPROVED" && (
-                        <button
-                          onClick={() =>
-                            handleApprove(app.applicationID, app.artistName)
-                          }
-                          disabled={actionLoading === app.applicationID}
-                          className="rounded-xl bg-aqua-500 hover:bg-aqua-400 text-ink-950 px-3.5 py-1.5 text-xs font-bold shadow-md shadow-aqua-500/20 transition disabled:opacity-50"
-                        >
-                          {actionLoading === app.applicationID
-                            ? "Approving…"
-                            : "Approve Artist"}
-                        </button>
-                      )}
-
-                      {app.status !== "REJECTED" && (
-                        <button
-                          onClick={() =>
-                            handleReject(app.applicationID, app.artistName)
-                          }
-                          disabled={actionLoading === app.applicationID}
-                          className="rounded-xl border border-blush-800/60 bg-blush-950/40 hover:bg-blush-900/60 text-blush-300 px-3 py-1.5 text-xs font-semibold transition disabled:opacity-50"
-                        >
-                          {actionLoading === app.applicationID
-                            ? "Rejecting…"
-                            : "Reject"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

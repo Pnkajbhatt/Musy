@@ -131,9 +131,12 @@ async function apiFetch(url, options = {}) {
 
   const response = await fetch(requestUrl, fetchOptions);
 
-  // If not 401 or this request was already a refresh/login/register attempt, return response directly
+  // If not auth error (401, or 403 when user had a session) or this was already a refresh/login/register attempt, return response
+  const hadSession = Boolean(token || localStorage.getItem("role") || localStorage.getItem("user"));
+  const isAuthError = response.status === 401 || (response.status === 403 && hadSession);
+
   if (
-    response.status !== 401 ||
+    !isAuthError ||
     cleanUrl.startsWith("auth/refresh") ||
     cleanUrl.startsWith("auth/login") ||
     cleanUrl.startsWith("auth/register")
@@ -143,12 +146,17 @@ async function apiFetch(url, options = {}) {
 
   // If already refreshing, wait for ongoing refresh then retry original request
   if (isRefreshing) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       subscribeTokenRefresh((refreshErr) => {
         if (refreshErr) {
-          resolve(response); // return the original 401 if refresh failed
+          resolve(response); // return the original response if refresh failed
         } else {
-          resolve(fetch(requestUrl, fetchOptions));
+          const latestToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+          const retryHeaders = { ...fetchOptions.headers };
+          if (latestToken) {
+            retryHeaders.Authorization = `Bearer ${latestToken}`;
+          }
+          resolve(fetch(requestUrl, { ...fetchOptions, headers: retryHeaders }));
         }
       });
     });
@@ -167,17 +175,26 @@ async function apiFetch(url, options = {}) {
     if (refreshRes.ok) {
       const refreshData = await refreshRes.json().catch(() => null);
       if (refreshData?.data) {
-        localStorage.setItem("user", JSON.stringify(refreshData.data));
-        if (refreshData.data.username) {
-          localStorage.setItem("username", refreshData.data.username);
+        const u = refreshData.data;
+        localStorage.setItem("user", JSON.stringify(u));
+        if (u.username) {
+          localStorage.setItem("username", u.username);
         }
-        if (refreshData.data.role) {
-          localStorage.setItem("role", refreshData.data.role);
+        if (u.role) {
+          localStorage.setItem("role", u.role);
+        }
+        if (u.token) {
+          localStorage.setItem("token", u.token);
         }
       }
       onRefreshed(null);
-      // Retry the original request
-      return fetch(requestUrl, fetchOptions);
+      // Retry the original request with updated token
+      const latestToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const retryHeaders = { ...fetchOptions.headers };
+      if (latestToken) {
+        retryHeaders.Authorization = `Bearer ${latestToken}`;
+      }
+      return fetch(requestUrl, { ...fetchOptions, headers: retryHeaders });
     } else {
       // Refresh failed: clear user and broadcast logout
       localStorage.removeItem("token");

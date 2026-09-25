@@ -82,7 +82,7 @@ public class AuthController {
         httpResponse.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         httpResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        UserProfileDTO profile = new UserProfileDTO(result.userId(), result.username(), result.role());
+        UserProfileDTO profile = new UserProfileDTO(result.userId(), result.username(), result.role(), result.accessToken());
         ApiResponseAuth<UserProfileDTO> response = ApiResponseAuth.Success(
                 profile,
                 "Token refreshed successfully",
@@ -116,7 +116,16 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        UserProfileDTO profile = authService.getCurrentUser(authentication.getName());
+        String token = null;
+        String authHeader = httpRequest.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        } else {
+            token = cookieUtil.extractAccessToken(httpRequest).orElse(null);
+        }
+
+        UserProfileDTO userProfile = authService.getCurrentUser(authentication.getName());
+        UserProfileDTO profile = new UserProfileDTO(userProfile.userId(), userProfile.username(), userProfile.role(), token);
         ApiResponseAuth<UserProfileDTO> response = ApiResponseAuth.Success(
                 profile,
                 "Current user profile",

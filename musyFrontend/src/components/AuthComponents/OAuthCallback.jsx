@@ -17,6 +17,7 @@ function OAuthCallback() {
             localStorage.setItem("user", JSON.stringify(user));
             if (user.username) localStorage.setItem("username", user.username);
             if (user.role) localStorage.setItem("role", user.role);
+            if (user.token) localStorage.setItem("token", user.token);
           }
           window.dispatchEvent(new Event("auth-change"));
           navigate("/", { replace: true });
