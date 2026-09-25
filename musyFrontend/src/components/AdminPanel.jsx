@@ -30,10 +30,17 @@ const AdminPanel = () => {
     localStorage.getItem("role") === "ROLE_ADMIN" ||
     localStorage.getItem("role") === "ADMIN";
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await apiFetch("auth/logout", { method: "POST" });
+    } catch {}
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user_avatar");
     window.dispatchEvent(new Event("auth-change"));
-    navigate("/login");
+    navigate("/");
   };
 
   const loadDashboardData = async () => {
